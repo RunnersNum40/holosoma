@@ -46,7 +46,7 @@ dependencies = [
     "types-tqdm",
     "tyro>=1.0.0",
     "wandb==0.22.0", # pin version until https://github.com/wandb/wandb/issues/10647 is fixed
-    "warp-lang==1.10.0",
+    "warp-lang>=1.10.0,<2",
     "yourdfpy>=0.0.58",
     "zmq",
 ]
