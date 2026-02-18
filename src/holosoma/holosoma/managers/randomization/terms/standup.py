@@ -40,3 +40,27 @@ def apply_vertical_pull(
         applied[:, torso_idx, 2] = force
     else:
         applied[torso_idx, 2] = force
+
+
+def clear_applied_forces(
+    env,
+    env_ids: torch.Tensor,
+    **_,
+) -> None:
+    """Zero applied forces for reset environments.
+
+    Prevents stale ``apply_vertical_pull`` forces from persisting across
+    episode boundaries. Without this, a freshly spawned supine robot receives
+    the full pull force on its first physics step while already clipping the
+    ground, causing explosive contact resolution.
+
+    Args:
+        env: The simulation environment.
+        env_ids: Indices of environments being reset.
+    """
+    applied = env.simulator.applied_forces
+
+    if isinstance(applied, torch.Tensor):
+        applied[env_ids, :, :] = 0.0
+    else:
+        applied[:, :] = 0.0

@@ -19,9 +19,15 @@ _standup_step_terms["apply_vertical_pull"] = RandomizationTermCfg(
     },
 )
 
+_standup_reset_terms = dict(g1_29dof_randomization.reset_terms)
+_standup_reset_terms["clear_applied_forces"] = RandomizationTermCfg(
+    func="holosoma.managers.randomization.terms.standup:clear_applied_forces",
+)
+
 g1_29dof_standup_randomization = replace(
     g1_29dof_randomization,
     step_terms=_standup_step_terms,
+    reset_terms=_standup_reset_terms,
 )
 
 __all__ = ["g1_29dof_standup_randomization"]
