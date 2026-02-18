@@ -20,22 +20,23 @@ def apply_vertical_pull(
     The actual force magnitude is ``max_force * env._vertical_pull_scale``,
     where ``_vertical_pull_scale`` is managed by ``VerticalPullCurriculum``.
 
+    Uses assignment (not ``+=``) because MuJoCo does not zero ``xfrc_applied``
+    between steps — additive writes would accumulate indefinitely.
+
     Args:
         max_force: Peak upward force in Newtons (default ~0.6 * 35kg * 9.81).
         enabled: Master toggle for this term.
     """
     if not enabled or env.is_evaluating:
-        return
-
-    scale = getattr(env, "_vertical_pull_scale", 1.0)
-    force = max_force * scale
-    if force == 0.0:
-        return
+        force = 0.0
+    else:
+        scale = getattr(env, "_vertical_pull_scale", 1.0)
+        force = max_force * scale
 
     torso_idx = env.torso_index
     applied = env.simulator.applied_forces
 
     if isinstance(applied, torch.Tensor):
-        applied[:, torso_idx, 2] += force
+        applied[:, torso_idx, 2] = force
     else:
-        applied[torso_idx, 2] += force
+        applied[torso_idx, 2] = force
