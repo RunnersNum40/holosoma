@@ -400,7 +400,7 @@ class TestEdgeCases:
         position = (0.0, 0.0, 0.0)
         target = (0.0, 0.0, 0.0)
 
-        distance, azimuth, elevation = CameraController._cartesian_to_spherical(position, target)
+        distance, _azimuth, elevation = CameraController._cartesian_to_spherical(position, target)
 
         assert distance == 0.0
         # Elevation should be 0 when distance is 0 (handled in conversion)

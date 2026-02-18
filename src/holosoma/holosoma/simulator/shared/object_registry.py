@@ -259,7 +259,7 @@ class ObjectRegistry:
                 available = list(self.name_to_index.keys())
                 raise KeyError(f"Object '{name}' not found. Available: {available}")
 
-            obj_name, obj_type, position_in_type, _, _ = self.objects[self.name_to_index[name]]
+            _obj_name, obj_type, position_in_type, _, _ = self.objects[self.name_to_index[name]]
 
             # Direct calculation using interleaved layout
             if obj_type == ObjectType.ROBOT.value:
@@ -449,7 +449,7 @@ class ObjectRegistry:
         """Get scene object position by name"""
         if name not in self.name_to_index:
             raise KeyError(f"Object '{name}' not found")
-        obj_name, obj_type, position_in_type, _, _ = self.objects[self.name_to_index[name]]
+        _obj_name, obj_type, position_in_type, _, _ = self.objects[self.name_to_index[name]]
         if obj_type != ObjectType.SCENE.value:
             raise ValueError(f"Object '{name}' is not a scene object")
         return position_in_type

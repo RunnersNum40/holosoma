@@ -45,3 +45,17 @@ lint.ignore=[
 "src/holosoma/holosoma/train_agent.py" = ["PLC0415"]  # Disable since imports after SimApp are inherent to IsaacSim
 "src/holosoma/holosoma/utils/draw.py" = ["F401"]  # Disable since unused imports are required for the adapters
 "src/holosoma/holosoma/utils/eval_utils.py" = ["PLC0415"]  # Disable since imports after SimApp are inherent to IsaacSim
+
+[dependency-groups]
+dev = [
+    "jinja2>=3.1.6",
+    "numpy>=2.4.2",
+    "ruff>=0.15.1",
+    "slack>=0.0.2",
+    "slack-sdk>=3.40.0",
+    "torch>=2.10.0",
+    "trimesh>=4.11.2",
+    "ty>=0.0.17",
+    "tyro>=1.0.6",
+    "wandb>=0.25.0",
+]

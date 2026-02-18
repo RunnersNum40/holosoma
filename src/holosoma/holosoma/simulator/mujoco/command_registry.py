@@ -32,7 +32,7 @@ class CommandRegistry:
             glfw.KEY_D: ("right_command", lambda: self._adjust_command(1, 0.1)),
             glfw.KEY_Q: ("heading_left_command", lambda: self._adjust_command(3, -0.1)),
             glfw.KEY_E: ("heading_right_command", lambda: self._adjust_command(3, 0.1)),
-            glfw.KEY_Z: ("zero_command", lambda: self._zero_commands()),
+            glfw.KEY_Z: ("zero_command", self._zero_commands),
             glfw.KEY_X: ("walk_stand_toggle", lambda: self._toggle_command(4)),
             glfw.KEY_U: ("height_up", lambda: self._adjust_command(8, 0.1)),
             glfw.KEY_L: ("height_down", lambda: self._adjust_command(8, -0.1)),
@@ -75,7 +75,7 @@ class CommandRegistry:
 
         # Try robot commands
         if keycode in self.robot_commands:
-            name, action = self.robot_commands[keycode]
+            _name, action = self.robot_commands[keycode]
             action()
             logger.info(f"Current Command: {self.simulator.commands[0]}")
             # Notify callback after robot command

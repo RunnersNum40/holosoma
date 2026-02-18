@@ -30,7 +30,7 @@ def extract_global_positions(bvh_file_path):
     anim = extract.read_bvh(bvh_file_path)
 
     # Compute global positions using Forward Kinematics
-    global_quats, global_positions = utils.quat_fk(anim.quats, anim.pos, anim.parents)
+    _global_quats, global_positions = utils.quat_fk(anim.quats, anim.pos, anim.parents)
     return {
         "positions": global_positions / 100,
         "joint_names": anim.bones,

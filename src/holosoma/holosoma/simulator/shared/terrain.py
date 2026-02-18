@@ -48,7 +48,7 @@ class Terrain(TerrainInterface):
         self._env_length: int = max(1, int(self._cfg.terrain_length * self._cfg.scale_factor))
         self._env_width: int = max(1, int(self._cfg.terrain_width * self._cfg.scale_factor))
 
-        if self._type in ["none"]:
+        if self._type == "none":
             # a fully-managed terrain isn't supported for these types, so just return
             return
 
@@ -429,7 +429,7 @@ class Terrain(TerrainInterface):
         length = terrain.length
         x = np.arange(0, width)
         y = np.arange(0, length)
-        xx, yy = np.meshgrid(x, y, sparse=True)
+        xx, _yy = np.meshgrid(x, y, sparse=True)
         xx = xx.reshape(width, 1)
         max_height = int(slope * (terrain.horizontal_scale / terrain.vertical_scale) * width)
         terrain.height_field_raw[:width, np.arange(length)] += (max_height * xx / width).astype(

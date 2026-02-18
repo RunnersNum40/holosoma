@@ -730,7 +730,7 @@ def quat_rotate_batched(q: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     Note:
         For standard quaternion operations, use holosoma.isaac_utils.rotations.
     """
-    N, M = v.shape[:2]
+    _N, M = v.shape[:2]
 
     q_vec = q[:, :3].unsqueeze(1).expand(-1, M, -1)  # [N, M, 3]
     q_w = q[:, 3].unsqueeze(1).expand(-1, M)  # [N, M]

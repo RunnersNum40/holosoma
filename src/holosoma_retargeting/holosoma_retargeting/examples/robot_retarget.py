@@ -665,7 +665,7 @@ def main(cfg: RetargetingConfig) -> None:
     if task_type == "robot_only":
         human_joints = preprocess_motion_data(human_joints, retargeter, toe_names, smpl_scale)
     elif task_type in {"object_interaction", "climbing"}:
-        human_joints, object_poses, object_moving_frame_idx = preprocess_motion_data(
+        human_joints, object_poses, _object_moving_frame_idx = preprocess_motion_data(
             human_joints,
             retargeter,
             toe_names,

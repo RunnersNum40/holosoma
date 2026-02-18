@@ -342,7 +342,7 @@ def sloped_terrain(terrain: SubTerrain, slope: float = 1) -> SubTerrain:
     """
     x = np.arange(0, terrain.width)
     y = np.arange(0, terrain.length)
-    xx, yy = np.meshgrid(x, y, sparse=True)
+    xx, _yy = np.meshgrid(x, y, sparse=True)
     xx = xx.reshape(terrain.width, 1)
     max_height = int(slope * (terrain.horizontal_scale / terrain.vertical_scale) * terrain.width)
     terrain.height_field_raw[:, np.arange(terrain.length)] += (max_height * xx / terrain.width).astype(

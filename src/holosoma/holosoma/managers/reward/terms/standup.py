@@ -1,16 +1,4 @@
-"""Reward terms for standup-from-prone tasks.
-
-These terms are designed for training a policy to stand up from a supine
-(lying face-up) pose.  They complement the locomotion reward terms in
-``holosoma.managers.reward.terms.locomotion`` with standup-specific signals.
-
-G1 body name reference:
-    torso_link             — upper torso (body 17)
-    left_shoulder_pitch_link  — left shoulder pivot (body 18), ~1.0 m when standing
-    right_shoulder_pitch_link — right shoulder pivot (body 25), ~1.0 m when standing
-    left_foot_contact_point   — left foot (body 7)
-    right_foot_contact_point  — right foot (body 14)
-"""
+"""Reward terms for standup-from-supine tasks."""
 
 from __future__ import annotations
 
@@ -29,20 +17,17 @@ def shoulder_height_tracking(
     target_height: float = 0.9,
     tracking_sigma: float = 0.25,
 ) -> torch.Tensor:
-    """Exponential reward for tracking average shoulder height relative to feet.
+    """Exponential reward for average shoulder height relative to feet.
 
-    Uses the average z-position of the left and right shoulder pitch links
-    minus the average foot contact point z-position.  Measuring relative to
-    feet makes the signal invariant to terrain elevation and foot placement.
-
-    A G1 at full standing height has shoulder-to-feet distance of roughly
-    0.9 m; this is the natural default target.
+    Measuring relative to feet makes the signal invariant to terrain
+    elevation. The G1 at full standing height has a shoulder-to-feet
+    distance of roughly 0.9 m.
 
     Args:
         env: The simulation environment.
-        target_height: Target shoulder-to-feet height in metres.
-        tracking_sigma: Width of the exponential reward bell — smaller is
-            tighter, e.g. 0.1 is precise, 0.4 is lenient.
+        target_height: Target shoulder-to-feet distance in metres.
+        tracking_sigma: Width of the exponential reward bell; smaller
+            is tighter.
 
     Returns:
         Reward tensor of shape ``(num_envs,)``, values in ``[0, 1]``.
@@ -70,26 +55,20 @@ def uprightness_height_gated(
     *,
     height_threshold: float = 0.5,
 ) -> torch.Tensor:
-    """Penalize non-upright base orientation, suppressed near the ground.
+    """Uprightness penalty zeroed below a shoulder height gate.
 
-    During the early phase of standup the robot is necessarily tilted;
-    penalising tilt immediately discourages the policy from attempting the
-    transition at all.  This gate zeros the uprightness penalty while the
-    shoulder-to-feet height is below ``height_threshold``, freeing the policy
-    to explore ground-contact strategies without orientation punishment.
-
-    G1 reference heights (shoulder-to-feet):
-        ~0.15 m — supine on the floor
-        ~0.50 m — beginning to push up / kneeling
-        ~0.90 m — fully upright
+    Suppresses the penalty while the robot is near the ground so the
+    policy can explore recovery strategies without being punished for
+    the tilt that is necessary during standup. ~0.5 m shoulder-to-feet
+    corresponds roughly to a kneeling posture.
 
     Args:
         env: The simulation environment.
         height_threshold: Shoulder-to-feet height (m) below which the
-            uprightness penalty is zeroed.
+            penalty is zeroed.
 
     Returns:
-        Reward tensor of shape ``(num_envs,)`` — use with a negative weight.
+        Penalty tensor of shape ``(num_envs,)`` — use with a negative weight.
     """
     projected = get_projected_gravity(env)
     base_penalty = torch.sum(torch.square(projected[:, :2]), dim=1)
@@ -114,22 +93,18 @@ def non_foot_contact_penalty(
     *,
     force_threshold: float = 1.0,
 ) -> torch.Tensor:
-    """Penalize contact forces on body parts other than the feet.
+    """Count of non-foot bodies with contact force above threshold.
 
-    Discourages the policy from resting weight on knees, shins, or hands as
-    a crutch while getting up.  Returns the count of non-foot bodies whose
-    contact force magnitude exceeds ``force_threshold`` Newtons.
-
-    The set of non-foot body indices is built once and cached on the env
-    object to avoid repeated set operations each step.
+    Discourages resting weight on knees, shins, or hands. Non-foot body
+    indices are computed once and cached on the env object.
 
     Args:
         env: The simulation environment.
-        force_threshold: Contact force magnitude (N) above which a body is
-            counted as in undesired contact.
+        force_threshold: Contact force magnitude (N) above which a body
+            counts as in undesired contact.
 
     Returns:
-        Reward tensor of shape ``(num_envs,)`` — use with a negative weight.
+        Penalty tensor of shape ``(num_envs,)`` — use with a negative weight.
     """
     if not hasattr(env, "_standup_non_foot_body_indices"):
         feet_set = set(env.feet_indices.tolist())
@@ -146,22 +121,17 @@ def xy_drift_penalty(
     *,
     max_drift: float = 0.75,
 ) -> torch.Tensor:
-    """Penalize XY drift from the episode start position.
+    """Quadratic penalty for XY displacement from episode start position.
 
-    The robot should stand up in place rather than sliding across the floor.
-    The penalty is quadratic, normalised so it equals 1.0 when the robot has
-    moved ``max_drift`` metres from its starting XY position.
-
-    The start position is recorded at the first call to this function for
-    each environment and refreshed whenever ``episode_length_buf == 0``
-    (i.e., immediately after a reset).
+    Start position is recorded on first call and refreshed after each
+    reset (when ``episode_length_buf == 0``).
 
     Args:
         env: The simulation environment.
         max_drift: Distance (m) at which the penalty saturates to 1.0.
 
     Returns:
-        Reward tensor of shape ``(num_envs,)`` — use with a negative weight.
+        Penalty tensor of shape ``(num_envs,)`` — use with a negative weight.
     """
     current_xy = env.simulator.robot_root_states[:, :2]
 
@@ -181,24 +151,18 @@ def kinetic_energy_penalty(
     *,
     velocity_scale: float = 10.0,
 ) -> torch.Tensor:
-    """Penalize kinetic energy of non-foot rigid bodies.
+    """Sum of squared linear velocities of non-foot bodies, scaled.
 
-    Computes the sum of squared linear velocities across all non-foot bodies.
-    This is a simulator-independent proxy for kinetic energy that penalizes
-    fast-moving body parts — the precondition for hard impacts.  Unlike
-    contact-force penalties, this signal cannot be gamed by the soft contact
-    model or time-averaging in the physics engine.
-
-    The raw ``Σ ‖v‖²`` (m²/s²) is divided by ``velocity_scale`` to keep
-    the reward term on a manageable numerical scale.
+    Penalises fast-moving body parts as a proxy for impact risk. Non-foot
+    body indices are computed once and cached on the env object.
 
     Args:
         env: The simulation environment.
-        velocity_scale: Divisor for raw sum-of-squared velocities (m²/s²).
+        velocity_scale: Divisor applied to the raw Σ‖v‖² value (m²/s²).
             Larger values produce a softer penalty.
 
     Returns:
-        Reward tensor of shape ``(num_envs,)`` — use with a negative weight.
+        Penalty tensor of shape ``(num_envs,)`` — use with a negative weight.
     """
     if not hasattr(env, "_standup_ke_non_foot_indices"):
         feet_set = set(env.feet_indices.tolist())

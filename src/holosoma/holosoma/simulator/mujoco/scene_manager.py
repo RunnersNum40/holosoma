@@ -158,10 +158,10 @@ class MujocoSceneManager:
         geom: mujoco.MjSpec.Geom | None = None
         if terrain_state.mesh_type == "plane":
             geom = self._create_ground_plane(terrain_state)
-        elif terrain_state.mesh_type in ["trimesh"]:
+        elif terrain_state.mesh_type == "trimesh":
             # Use heightfield to reduce penetrations (vs. trimesh/geom mesh)
             geom = self._create_hfield(terrain_state)
-        elif terrain_state.mesh_type in ["load_obj"]:
+        elif terrain_state.mesh_type == "load_obj":
             geom = self._create_trimesh(terrain_state)
         elif terrain_state.mesh_type is None:
             logger.info("Terrain is none")

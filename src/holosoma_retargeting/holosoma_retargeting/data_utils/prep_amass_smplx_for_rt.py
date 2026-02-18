@@ -187,7 +187,7 @@ def compute_height(bm_dict, betas, gender):
     """
     rest_root_trans = torch.zeros(1, 1, 3)
     rest_poses = torch.zeros(1, 1, 52, 3)
-    rest_jnts, rest_verts, mesh_faces = run_smplx_model(
+    rest_jnts, rest_verts, _mesh_faces = run_smplx_model(
         root_trans=rest_root_trans, aa_rot_rep=rest_poses, betas=betas, gender=gender, bm_dict=bm_dict
     )
 
@@ -269,7 +269,7 @@ def main(cfg: Config):
         betas = torch.from_numpy(betas).float()[None]  # 1 X 16
 
         # Run FK to obtain global joint positions and global joint rotations
-        global_joint_positions, global_joint_verts, mesh_faces = run_smplx_model(
+        global_joint_positions, _global_joint_verts, _mesh_faces = run_smplx_model(
             root_trans=root_trans, aa_rot_rep=aa_rot_52, betas=betas, gender=[gender], bm_dict=bm_dict
         )
 

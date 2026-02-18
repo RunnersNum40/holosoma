@@ -270,7 +270,7 @@ class IsaacGym(BaseSimulator):
         if not hasattr(self, "urdf_scene_loader"):
             self.urdf_scene_loader = URDFSceneLoader(self.gym, self.sim, self.device)
 
-        assets, initial_states = self.urdf_scene_loader.load_scene_files(scene_config)
+        assets, _initial_states = self.urdf_scene_loader.load_scene_files(scene_config)
         self.object_assets.update(assets)
         logger.info(f"IsaacGym: Loaded {len(assets)} scene objects from scene files")
 

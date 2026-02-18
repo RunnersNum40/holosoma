@@ -47,7 +47,6 @@ g1_29dof_wbt = InferenceConfig(
             3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0,
         ),
     ),
-# fmt: on
     observation=observation.wbt,
     task=task.wbt,
 )

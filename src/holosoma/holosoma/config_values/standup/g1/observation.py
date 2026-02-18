@@ -1,22 +1,7 @@
-"""Standup observation presets for the G1 robot.
+"""Standup observation presets for the G1 29-DOF robot.
 
-Differences from the locomotion preset (g1_29dof_loco_single_wolinvel):
-  - Gait phase signals (sin_phase, cos_phase) are omitted — standup has no
-    rhythmic gait to encode.
-  - Velocity commands (command_lin_vel, command_ang_vel) are omitted — the
-    standup task issues no velocity commands, so these would always be zero
-    and waste observation capacity.
-  - History length is kept at 1; the action term provides one step of
-    implicit recurrence.
-
-Total actor observation dimension (G1 29-DOF):
-    base_ang_vel      3
-    projected_gravity 3
-    dof_pos          29
-    dof_vel          29
-    actions          29
-    -----------------
-    total            93
+Omits gait phase signals and velocity commands from the locomotion preset,
+as standup has no rhythmic gait and issues no velocity commands.
 """
 
 from holosoma.config_types.observation import ObservationManagerCfg, ObsGroupCfg, ObsTermCfg
@@ -60,7 +45,6 @@ g1_29dof_standup = ObservationManagerCfg(
             enable_noise=False,
             history_length=1,
             terms={
-                # Critic gets privileged base linear velocity (no noise)
                 "base_lin_vel": ObsTermCfg(
                     func="holosoma.managers.observation.terms.locomotion:base_lin_vel",
                     scale=2.0,

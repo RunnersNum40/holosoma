@@ -957,7 +957,7 @@ class InteractionMeshRetargeter:
         T[dadr : dadr + 3, qadr : qadr + 3] = np.eye(3)
 
         # Angular block: ω_* = 2 * E_*(q) * quat_dot
-        w, x, y, z = self.robot_data.qpos[qadr + 3 : qadr + 7]
+        _w, _x, _y, _z = self.robot_data.qpos[qadr + 3 : qadr + 7]
 
         def get_e_world(qw, qx, qy, qz):
             return np.array(

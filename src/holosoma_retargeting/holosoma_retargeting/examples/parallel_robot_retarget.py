@@ -233,7 +233,7 @@ def process_single_task(args):
         if task_type == "robot_only":
             human_joints = preprocess_motion_data(human_joints, retargeter, toe_names, smpl_scale)
         elif task_type in {"object_interaction", "climbing"}:
-            human_joints, object_poses, object_moving_frame_idx = preprocess_motion_data(
+            human_joints, object_poses, _object_moving_frame_idx = preprocess_motion_data(
                 human_joints, retargeter, toe_names, scale=smpl_scale, object_poses=object_poses
             )
 
@@ -287,7 +287,7 @@ def process_single_task(args):
             continue
 
         # Retarget motion
-        retargeted_motions, _, _, _ = retargeter.retarget_motion(
+        _retargeted_motions, _, _, _ = retargeter.retarget_motion(
             human_joint_motions=human_joints,
             object_poses=object_poses,
             object_poses_augmented=object_poses_augmented,

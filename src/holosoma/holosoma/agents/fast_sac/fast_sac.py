@@ -460,7 +460,7 @@ def calculate_cnn_output_dim(input_shape: tuple[int, int, int]) -> int:
     Returns:
         Output dimension after flattening
     """
-    channels, height, width = input_shape
+    _channels, height, width = input_shape
 
     # First conv layer: Conv2d(channels, 16, kernel_size=4, stride=2, padding=1)
     h1 = (height + 2 * 1 - 4) // 2 + 1

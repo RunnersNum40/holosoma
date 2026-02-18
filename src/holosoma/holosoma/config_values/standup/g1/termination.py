@@ -1,13 +1,8 @@
-"""Standup termination presets for the G1 robot.
+"""Standup termination presets for the G1 29-DOF robot.
 
-Contact termination is intentionally disabled for standup: the robot starts
-on the floor and must contact non-foot bodies (pelvis, knees, hands) during
-the recovery.  The penalty-based ``non_foot_contact_penalty`` reward term
-handles discouraging prolonged contact without hard-terminating episodes.
-
-Termination conditions:
-    timeout         — episode runs to maximum length (non-fatal timeout)
-    floor_below_z   — root drops through the terrain (usually geometry error)
+Contact termination is omitted: the robot starts on the floor and must
+use non-foot body contact during recovery. The non_foot_contact_penalty
+reward term discourages prolonged contact without hard episode termination.
 """
 
 from holosoma.config_types.termination import TerminationManagerCfg, TerminationTermCfg
