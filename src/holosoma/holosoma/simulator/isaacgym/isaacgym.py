@@ -6,11 +6,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from isaacgym import gymapi, gymtorch, gymutil
-from loguru import logger
-from rich.progress import Progress
-from torch import Tensor
-
 from holosoma.config_types.full_sim import FullSimConfig
 from holosoma.managers.terrain import TerrainManager
 from holosoma.simulator.base_simulator.base_simulator import BaseSimulator
@@ -29,6 +24,10 @@ from holosoma.utils.draw import draw_line, draw_sphere
 from holosoma.utils.module_utils import get_holosoma_root
 from holosoma.utils.safe_torch_import import torch
 from holosoma.utils.torch_utils import to_torch, torch_rand_float
+from isaacgym import gymapi, gymtorch, gymutil
+from loguru import logger
+from rich.progress import Progress
+from torch import Tensor
 
 
 class Scene:

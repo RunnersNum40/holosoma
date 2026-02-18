@@ -672,7 +672,7 @@ def create_new_scene_xml_file(
     with open(ori_scene_xml_path) as f:
         content = f.read()
 
-    new_asset = new_object_asset_xml_path.split("/")[-1]
+    new_asset = new_object_asset_xml_path.rsplit("/", maxsplit=1)[-1]
     pattern = r'file="box_assets\.xml"'
     replacement = f'file="{new_asset}"'
     content = re.sub(pattern, replacement, content)

@@ -8,8 +8,6 @@ from contextlib import contextmanager
 from typing import Any, Callable, Dict, Sequence
 
 import tqdm
-from loguru import logger
-
 from holosoma.agents.base_algo.base_algo import BaseAlgo
 from holosoma.agents.fast_sac.fast_sac import Actor, CNNActor, CNNCritic, Critic
 from holosoma.agents.fast_sac.fast_sac_utils import (
@@ -40,6 +38,7 @@ from holosoma.utils.safe_torch_import import (
     optim,
     torch,
 )
+from loguru import logger
 
 torch.set_float32_matmul_precision("high")
 

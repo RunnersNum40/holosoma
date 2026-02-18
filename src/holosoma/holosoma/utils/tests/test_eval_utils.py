@@ -6,8 +6,6 @@ from unittest import mock
 
 import pytest
 import torch
-from omegaconf import OmegaConf
-
 from holosoma.config_types.experiment import ExperimentConfig
 from holosoma.utils.config_utils import CONFIG_NAME
 from holosoma.utils.eval_utils import (
@@ -16,6 +14,7 @@ from holosoma.utils.eval_utils import (
     load_checkpoint,
     load_saved_experiment_config,
 )
+from omegaconf import OmegaConf
 
 
 @pytest.fixture

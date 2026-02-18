@@ -1,7 +1,6 @@
 """Unitree robot interface using C++/pybind11 binding."""
 
 import numpy as np
-
 from holosoma_inference.config.config_types import RobotConfig
 from holosoma_inference.sdk.base.base_interface import BaseInterface
 

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-
 from holosoma_inference.config.config_types.robot import RobotConfig
 
 

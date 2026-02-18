@@ -45,15 +45,14 @@ from typing import Any, Dict, List
 
 import trimesh.transformations as tra
 import yourdfpy  # type:ignore[import-untyped]
-from isaacgym import gymapi
-from loguru import logger
-from yourdfpy.urdf import Robot  # type:ignore[import-untyped]
-
 from holosoma.config_types.simulator import (
     RigidObjectConfig,
     SceneConfig,
     SceneFileConfig,
 )
+from isaacgym import gymapi
+from loguru import logger
+from yourdfpy.urdf import Robot  # type:ignore[import-untyped]
 
 # Type aliases compatible with Python 3.8
 Pose = List[float]  # [x, y, z, qx, qy, qz, qw]
@@ -556,7 +555,7 @@ class URDFSceneLoader:
             clean_pattern = pattern.replace("*/", "")
             if fnmatch.fnmatch(object_name, clean_pattern):
                 logger.debug(f"Object '{object_name}' matches pattern '{pattern}'")
-                return obj_config.physics if obj_config.physics else None
+                return obj_config.physics or None
 
         return None
 

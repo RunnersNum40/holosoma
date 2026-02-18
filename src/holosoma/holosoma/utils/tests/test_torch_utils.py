@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 import torch
-
 from holosoma.utils.torch_utils import (
     get_axis_params,
     normalize,

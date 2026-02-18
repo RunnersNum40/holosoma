@@ -10,13 +10,12 @@ from typing import Any, Generator, TypedDict
 
 import torch
 import wandb
+from holosoma.utils.average_meters import TensorAverageMeterDict
 from loguru import logger
 from rich.console import Console
 from rich.live import Live
 from rich.panel import Panel
 from torch.utils.tensorboard import SummaryWriter
-
-from holosoma.utils.average_meters import TensorAverageMeterDict
 
 console = Console()
 

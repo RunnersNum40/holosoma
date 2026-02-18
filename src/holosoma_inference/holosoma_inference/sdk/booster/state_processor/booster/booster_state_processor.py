@@ -1,5 +1,4 @@
 from booster_robotics_sdk import B1LowStateSubscriber
-
 from holosoma_inference.utils.math.quat import rpy_to_quat
 
 from ..base import BasicStateProcessor  # noqa: TID252

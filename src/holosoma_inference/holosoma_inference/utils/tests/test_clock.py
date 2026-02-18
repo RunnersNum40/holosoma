@@ -5,7 +5,6 @@ Unit tests for holosoma_inference.utils.clock module.
 from unittest import mock
 
 import zmq
-
 from holosoma_inference.utils.clock import ClockPub, ClockSub
 
 

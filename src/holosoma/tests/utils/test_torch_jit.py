@@ -14,7 +14,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import torch
-
 from holosoma.utils.torch_jit import _is_tensor_proxy, proxy_compatible, torch_jit_script
 
 

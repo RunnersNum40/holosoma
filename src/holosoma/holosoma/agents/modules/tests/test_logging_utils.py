@@ -2,9 +2,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
-from torch.utils.tensorboard import SummaryWriter
-
 from holosoma.agents.modules.logging_utils import LoggingHelper
+from torch.utils.tensorboard import SummaryWriter
 
 
 @pytest.fixture

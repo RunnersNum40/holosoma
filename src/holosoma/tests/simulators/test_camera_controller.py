@@ -6,7 +6,6 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-
 from holosoma.config_types.video import (
     CartesianCameraConfig,
     FixedCameraConfig,

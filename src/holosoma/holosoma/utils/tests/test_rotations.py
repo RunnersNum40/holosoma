@@ -1,8 +1,6 @@
 import numpy as np
 import pytest
 import torch
-from scipy.spatial.transform import Rotation
-
 from holosoma.utils.rotations import (
     normalize_angle,
     quat_apply,
@@ -14,6 +12,7 @@ from holosoma.utils.rotations import (
     quat_unit,
     yaw_quat,
 )
+from scipy.spatial.transform import Rotation
 
 
 @pytest.fixture

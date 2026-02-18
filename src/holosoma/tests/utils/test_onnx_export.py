@@ -5,11 +5,10 @@ from pathlib import Path
 
 import onnx
 import torch
-from torch import nn
-
 from holosoma.agents.modules.module_utils import setup_ppo_actor_module
 from holosoma.config_types.algo import LayerConfig, ModuleConfig
 from holosoma.utils.inference_helpers import export_policy_as_onnx
+from torch import nn
 
 
 class ActorWrapper(nn.Module):

@@ -10,7 +10,6 @@ from unittest.mock import MagicMock
 
 import pytest
 import torch
-
 from holosoma.agents.modules.augmentation_utils import SymmetryUtils
 
 

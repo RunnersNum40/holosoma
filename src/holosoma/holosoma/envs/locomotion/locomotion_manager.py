@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from loguru import logger
-
 from holosoma.envs.base_task.base_task import BaseTask
 from holosoma.utils.safe_torch_import import torch
 from holosoma.utils.torch_utils import torch_rand_float
+from loguru import logger
 
 
 class LeggedRobotLocomotionManager(BaseTask):

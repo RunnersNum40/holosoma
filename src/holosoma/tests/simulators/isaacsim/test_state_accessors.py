@@ -4,7 +4,6 @@ from unittest.mock import Mock
 
 import pytest
 import torch
-
 from holosoma.simulator.isaacsim.proxy_utils import AllRootStatesProxy, RootStatesProxy
 from holosoma.simulator.isaacsim.state_adapter import IsaacSimStateAdapter
 from holosoma.simulator.isaacsim.state_utils import fullstate_wxyz_to_xyzw

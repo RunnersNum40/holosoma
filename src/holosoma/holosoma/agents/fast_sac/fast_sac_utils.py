@@ -5,11 +5,10 @@ from typing import Any
 
 import torch
 import torch.distributed as dist
+from holosoma.config_types.algo import FastSACConfig
 from tensordict import TensorDict
 from torch import nn
 from torch.amp import GradScaler
-
-from holosoma.config_types.algo import FastSACConfig
 
 
 class SimpleReplayBuffer(nn.Module):

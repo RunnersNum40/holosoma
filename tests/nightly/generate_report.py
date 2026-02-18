@@ -40,7 +40,7 @@ def get_filters(
     # FilterExpr Tags are bugged
     # filters = [ws.Tags().isin([f"gha-run-id-{gh_run_id}"])]
 
-    tags = extra_tags if extra_tags else []
+    tags = extra_tags or []
     if gh_run_id:
         tags.append(f"gha-run-id-{gh_run_id}")
 

@@ -13,7 +13,6 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-
 from holosoma.utils.file_cache import (
     _get_cache_path,
     _get_metadata_path,

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pydantic.dataclasses import dataclass
-
 from holosoma.config_types.experiment import TrainingConfig
 from holosoma.config_types.logger import LoggerConfig
 from holosoma.config_types.robot import RobotConfig
 from holosoma.config_types.simulator import SimulatorInitConfig
+from pydantic.dataclasses import dataclass
 
 
 @dataclass(frozen=True)

@@ -5,10 +5,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from holosoma.config_types.viewer import ViewerConfig
 from pydantic import model_validator
 from pydantic.dataclasses import dataclass
-
-from holosoma.config_types.viewer import ViewerConfig
 
 
 class MujocoBackend(str, Enum):

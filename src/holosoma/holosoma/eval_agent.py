@@ -58,7 +58,7 @@ def run_eval_with_tyro(
 
     exported_policy_dir_path = os.path.join(checkpoint_dir, "exported")
     os.makedirs(exported_policy_dir_path, exist_ok=True)
-    exported_policy_name = checkpoint_path.split("/")[-1]  # example: model_5000.pt
+    exported_policy_name = checkpoint_path.rsplit("/", maxsplit=1)[-1]  # example: model_5000.pt
     exported_onnx_name = exported_policy_name.replace(".pt", ".onnx")  # example: model_5000.onnx
 
     if tyro_config.training.export_onnx:

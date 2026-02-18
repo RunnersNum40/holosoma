@@ -1,5 +1,4 @@
 import tyro
-
 from holosoma.config_types.experiment import ExperimentConfig
 from holosoma.utils.tyro_utils import TYRO_CONIFG
 

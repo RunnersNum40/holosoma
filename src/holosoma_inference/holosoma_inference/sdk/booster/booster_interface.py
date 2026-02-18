@@ -1,10 +1,9 @@
 """Booster robot interface using sdk2py."""
 
 import numpy as np
-from termcolor import colored
-
 from holosoma_inference.config.config_types import RobotConfig
 from holosoma_inference.sdk.base.base_interface import BaseInterface
+from termcolor import colored
 
 
 class BoosterInterface(BaseInterface):

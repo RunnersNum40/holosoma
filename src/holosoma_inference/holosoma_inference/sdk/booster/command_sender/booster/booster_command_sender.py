@@ -6,7 +6,6 @@ from booster_robotics_sdk import (
     MotorCmd,
     RobotMode,
 )
-
 from holosoma_inference.config.config_types.robot import RobotConfig
 
 from ..base import BasicCommandSender  # noqa: TID252

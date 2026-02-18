@@ -4,8 +4,6 @@ import dataclasses
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from loguru import logger
-
 from holosoma.config_types.experiment import TrainingConfig
 from holosoma.config_types.full_sim import FullSimConfig
 from holosoma.config_types.robot import RobotConfig
@@ -17,6 +15,7 @@ from holosoma.simulator.types import ActorIndices, ActorNames, ActorStates, EnvI
 from holosoma.utils.experiment_paths import get_video_dir
 from holosoma.utils.safe_torch_import import torch
 from holosoma.utils.simulator_config import SimulatorType, get_simulator_type
+from loguru import logger
 
 if TYPE_CHECKING:
     from holosoma.simulator.shared.camera_controller import CameraController

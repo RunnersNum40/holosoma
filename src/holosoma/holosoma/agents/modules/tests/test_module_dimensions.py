@@ -8,7 +8,6 @@ This test suite verifies that:
 
 import pytest
 import torch
-
 from holosoma.agents.modules.modules import BaseModule
 from holosoma.config_types.algo import LayerConfig, ModuleConfig
 

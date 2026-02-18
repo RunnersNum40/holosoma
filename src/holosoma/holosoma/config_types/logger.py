@@ -3,11 +3,10 @@ from __future__ import annotations
 from dataclasses import field
 from typing import Literal, Union
 
+from holosoma.config_types.video import VideoConfig
 from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
 from typing_extensions import Annotated
-
-from holosoma.config_types.video import VideoConfig
 
 
 @dataclass(frozen=True, config=ConfigDict(extra="ignore"))

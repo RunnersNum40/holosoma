@@ -3,9 +3,8 @@ from __future__ import annotations
 import inspect
 
 import torch
-from torch import nn
-
 from holosoma.config_types.algo import LayerConfig, ModuleConfig
+from torch import nn
 
 
 class ImgChLayerNorm(nn.Module):

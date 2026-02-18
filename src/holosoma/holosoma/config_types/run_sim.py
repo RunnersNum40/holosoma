@@ -10,18 +10,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import tyro
-from typing_extensions import Annotated
-
 import holosoma.config_values.robot
 import holosoma.config_values.run_sim
 import holosoma.config_values.terrain
+import tyro
 from holosoma.config_types.experiment import TrainingConfig
 from holosoma.config_types.logger import DisabledLoggerConfig, LoggerConfig
 from holosoma.config_types.robot import RobotConfig
 from holosoma.config_types.simulator import SimulatorConfig
 from holosoma.config_types.terrain import TerrainManagerCfg
 from holosoma.config_types.video import VideoConfig
+from typing_extensions import Annotated
 
 
 def default_training_config() -> TrainingConfig:

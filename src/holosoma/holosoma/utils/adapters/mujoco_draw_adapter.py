@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import mujoco
 import numpy as np
-
 from holosoma.utils.adapters.draw_utils import convert_to_numpy
 from holosoma.utils.safe_torch_import import torch
 

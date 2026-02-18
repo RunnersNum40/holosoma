@@ -5,11 +5,6 @@ import datetime
 import json
 from datetime import timezone
 
-import tyro
-import yaml
-from pydantic.dataclasses import dataclass
-from typing_extensions import Annotated
-
 import holosoma.config_values.action
 import holosoma.config_values.algo
 import holosoma.config_values.command
@@ -22,6 +17,8 @@ import holosoma.config_values.robot
 import holosoma.config_values.simulator
 import holosoma.config_values.termination
 import holosoma.config_values.terrain
+import tyro
+import yaml
 from holosoma.config_types.action import ActionManagerCfg
 from holosoma.config_types.algo import AlgoConfig
 from holosoma.config_types.command import CommandManagerCfg
@@ -34,6 +31,8 @@ from holosoma.config_types.robot import RobotConfig
 from holosoma.config_types.simulator import SimulatorConfig
 from holosoma.config_types.termination import TerminationManagerCfg
 from holosoma.config_types.terrain import TerrainManagerCfg
+from pydantic.dataclasses import dataclass
+from typing_extensions import Annotated
 
 
 def now_timestamp() -> str:

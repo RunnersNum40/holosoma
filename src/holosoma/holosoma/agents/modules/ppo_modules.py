@@ -3,10 +3,9 @@ from __future__ import annotations
 from copy import deepcopy
 
 import torch
+from holosoma.config_types.algo import ModuleConfig
 from torch import nn
 from torch.distributions import Normal
-
-from holosoma.config_types.algo import ModuleConfig
 
 from .modules import BaseModule
 

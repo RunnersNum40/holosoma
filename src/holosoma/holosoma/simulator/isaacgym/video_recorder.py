@@ -10,10 +10,9 @@ from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
+from holosoma.simulator.shared.video_recorder import VideoRecorderInterface
 from isaacgym import gymapi
 from loguru import logger
-
-from holosoma.simulator.shared.video_recorder import VideoRecorderInterface
 
 if TYPE_CHECKING:
     from holosoma.simulator.isaacgym.isaacgym import IsaacGym
