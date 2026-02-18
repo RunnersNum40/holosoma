@@ -19,27 +19,10 @@ def raycast_kernel(
 ):
     tid = wp.tid()
 
-    t = 0.0  # hit distance along ray
-    u = 0.0  # hit face barycentric u
-    v = 0.0  # hit face barycentric v
-    sign = 0.0  # hit face sign
-    n = wp.vec3()  # hit face normal
-    f = 0  # hit face index
-    max_dist = 1e6  # max raycast disance
-    # ray cast against the mesh
-    if wp.mesh_query_ray(  # type: ignore[call-arg]
-        mesh,
-        ray_starts_world[tid],
-        ray_directions_world[tid],
-        max_dist,  # type: ignore[arg-type]
-        t,
-        u,
-        v,
-        sign,
-        n,
-        f,
-    ):
-        ray_hits_world[tid] = ray_starts_world[tid] + t * ray_directions_world[tid]
+    max_dist = 1e6  # max raycast distance
+    query = wp.mesh_query_ray(mesh, ray_starts_world[tid], ray_directions_world[tid], max_dist)  # type: ignore[call-arg, arg-type]
+    if query.result:  # type: ignore[attr-defined]
+        ray_hits_world[tid] = ray_starts_world[tid] + query.t * ray_directions_world[tid]  # type: ignore[attr-defined]
 
 
 def ray_cast(ray_starts_world: torch.Tensor, ray_directions_world: torch.Tensor, wp_mesh: wp.Mesh) -> torch.Tensor:
@@ -56,7 +39,7 @@ def ray_cast(ray_starts_world: torch.Tensor, ray_directions_world: torch.Tensor,
     ray_starts_world = ray_starts_world.view(-1, 3)
     ray_directions_world = ray_directions_world.view(-1, 3)
     num_rays = len(ray_starts_world)
-    ray_starts_world_wp = wp.types.array(
+    ray_starts_world_wp = wp.array(
         ptr=ray_starts_world.data_ptr(),
         dtype=wp.vec3,
         shape=(num_rays,),
@@ -64,7 +47,7 @@ def ray_cast(ray_starts_world: torch.Tensor, ray_directions_world: torch.Tensor,
         # owner=False,
         device=wp_mesh.device,
     )
-    ray_directions_world_wp = wp.types.array(
+    ray_directions_world_wp = wp.array(
         ptr=ray_directions_world.data_ptr(),
         dtype=wp.vec3,
         shape=(num_rays,),
@@ -74,7 +57,7 @@ def ray_cast(ray_starts_world: torch.Tensor, ray_directions_world: torch.Tensor,
     )
     ray_hits_world = torch.zeros((num_rays, 3), device=ray_starts_world.device)
     ray_hits_world[:] = float("inf")
-    ray_hits_world_wp = wp.types.array(
+    ray_hits_world_wp = wp.array(
         ptr=ray_hits_world.data_ptr(),
         dtype=wp.vec3,
         shape=(num_rays,),
@@ -131,7 +114,7 @@ def nearest_point(points: torch.Tensor, wp_mesh: wp.Mesh) -> torch.Tensor:
     shape = points.shape
     points = points.view(-1, 3)
     num_points = len(points)
-    points_wp = wp.types.array(
+    points_wp = wp.array(
         ptr=points.data_ptr(),
         dtype=wp.vec3,
         shape=(num_points,),
@@ -141,7 +124,7 @@ def nearest_point(points: torch.Tensor, wp_mesh: wp.Mesh) -> torch.Tensor:
     )
     mesh_points = torch.zeros((num_points, 3), device=points.device)
     mesh_points[:] = float("inf")
-    mesh_points_wp = wp.types.array(
+    mesh_points_wp = wp.array(
         ptr=mesh_points.data_ptr(),
         dtype=wp.vec3,
         shape=(num_points,),

@@ -76,6 +76,19 @@ def penalty_action_rate(env: LeggedRobotLocomotionManager) -> torch.Tensor:
     return torch.sum(torch.square(prev_actions - actions), dim=1)
 
 
+def penalty_torques(env: LeggedRobotLocomotionManager) -> torch.Tensor:
+    """Penalize torque magnitude normalized by per-joint limits.
+
+    Args:
+        env: The environment instance
+
+    Returns:
+        Reward tensor [num_envs]
+    """
+    torques = env.action_manager.get_term("joint_control").torques
+    return torch.sum(torch.abs(torques) / env.torque_limits, dim=1)
+
+
 def penalty_orientation(env: LeggedRobotLocomotionManager) -> torch.Tensor:
     """Penalize non-flat base orientation.
 

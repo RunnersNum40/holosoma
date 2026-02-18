@@ -11,6 +11,42 @@ if TYPE_CHECKING:
     from holosoma.envs.locomotion.locomotion_manager import LeggedRobotLocomotionManager
 
 
+def body_height_tracking(
+    env: LeggedRobotLocomotionManager,
+    *,
+    body_names: list[str],
+    target_height: float = 0.75,
+    tracking_sigma: float = 0.1,
+) -> torch.Tensor:
+    """Exponential reward tracking average height of named bodies relative to feet.
+
+    A generic version of :func:`shoulder_height_tracking` that accepts
+    arbitrary body names, useful when the tracked reference points differ
+    between robot morphologies or experimental setups.
+
+    Args:
+        env: The simulation environment.
+        body_names: Names of bodies whose z-positions are averaged.
+        target_height: Target height above average foot height in metres.
+        tracking_sigma: Width of the exponential reward bell; smaller
+            is tighter.
+
+    Returns:
+        Reward tensor of shape ``(num_envs,)``, values in ``[0, 1]``.
+    """
+    body_indices = [env.body_names.index(name) for name in body_names]
+    body_z_values = [env.simulator._rigid_body_pos[:, idx, 2] for idx in body_indices]
+    body_avg = torch.stack(body_z_values).mean(dim=0)
+
+    left_foot_z = env.simulator._rigid_body_pos[:, env.feet_indices[0], 2]
+    right_foot_z = env.simulator._rigid_body_pos[:, env.feet_indices[1], 2]
+    feet_avg = (left_foot_z + right_foot_z) / 2.0
+
+    current_height = torch.nan_to_num(body_avg - feet_avg, nan=0.0, posinf=2.0, neginf=0.0)
+    error = torch.square(target_height - current_height)
+    return torch.nan_to_num(torch.exp(-error / tracking_sigma), nan=0.0)
+
+
 def shoulder_height_tracking(
     env: LeggedRobotLocomotionManager,
     *,
