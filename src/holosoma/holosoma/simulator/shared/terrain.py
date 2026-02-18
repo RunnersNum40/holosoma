@@ -70,7 +70,7 @@ class Terrain(TerrainInterface):
 
         # Handle Scene objects from multi-mesh files
         if isinstance(base, trimesh.Scene):
-            base = base.dump(concatenate=True)  # type: ignore[assignment]
+            base = base.dump(concatenate=True)
 
         if not isinstance(base, trimesh.Trimesh):
             raise ValueError(f"Loaded object is not a valid Trimesh: {type(base)}")

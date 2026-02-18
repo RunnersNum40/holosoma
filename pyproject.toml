@@ -1,61 +1,161 @@
+[dependency-groups]
+dev = [
+  "defusedxml>=0.7.1",
+  "evdev>=1.9.3",
+  "jinja2>=3.1.6",
+  "loguru>=0.7.3",
+  "mujoco>=3.5.0",
+  "mujoco-warp",
+  "netifaces>=0.11.0",
+  "numpy>=2.4.2",
+  "omegaconf>=2.3.0",
+  "onnx>=1.20.1",
+  "onnxruntime>=1.24.1",
+  "opencv-python>=4.13.0.92",
+  "pinocchio>=0.4.3",
+  "pygame>=2.6.1",
+  "pynput>=1.8.1",
+  "pytest>=9.0.2",
+  "rich>=14.3.2",
+  "ruff>=0.15.1",
+  "scipy>=1.17.0",
+  "slack>=0.0.2",
+  "slack-sdk>=3.40.0",
+  "smart-open>=7.5.0",
+  "sshkeyboard>=2.3.1",
+  "tensordict>=0.11.0",
+  "termcolor>=3.3.0",
+  "torch>=2.10.0",
+  "tqdm>=4.67.3",
+  "trimesh>=4.11.2",
+  "ty>=0.0.17",
+  "tyro>=1.0.6",
+  "usd-core>=25.11",
+  "wandb>=0.25.0",
+  "zmq>=0.0.0",
+]
+
 [tool.ruff]
 target-version = "py38"
 line-length = 120
 lint.select = ["ALL"]
 lint.fixable = ["ALL"]
-lint.ignore=[
-    "C901", "PLR0912", "S311", "SLF001", "PLR0915", "PLR2004", "B904",
-    "N806", "PLR0911", "DTZ005",
-    "NPY002",  # Replace legacy `np.random.uniform` call with `np.random.Generator`
-    "SIM105",  # Use `contextlib.suppress(queue.Empty)` instead of `try`-`except`-`pass`
-    "TC001", "TC002", "TC003",  # move imports into a type-checking block
-    "PT018",  # multiple parts in assert
-    "SLF001",  # access private member
-    "SIM102",  # nested if
-    "FBT",  # Boolean positional value in function call
-    "C416",  # dict comprehension
-    "TRY", "EM",  # exception messages
-    "S101", "S301",  # assert, pickle
-    "PTH103", "PTH111", "PTH118", "PTH123", "PTH100", "PTH120", # os.makedirs, os.path.expanduser, etc.
-    "ARG001",  "ARG002",  # unused function arg
-    "T201",  # print statements
-    "COM812",  # trailing comma missing
-    "ERA001",  # commented out code
-    "INP001",  # file part of an implicit namespace package. Add an `__init__.py`.
-    "EXE",  # file is executable but no shebang is present
-    "FIX", # lines with todo comments
-    "TD",  # names/colon for assigning todo comments
-    "D",  # docstring details for public functions
-    "ANN", # return type annotations for public functions
-    "S603",  # check for untrusted input for subprocess
-    "SIM108",  # ternary operator enforcement
-    "S108",  # portable path
-    "S607",  # partial executable path
-    "RUF012", "RUF013", "RUF005",  # iterable unpacking
-    "BLE001",  # blind exception
-    "PLR0913",  # number of args to a function
-    "B026",  # Star-arg unpacking after a keyword argument
-    "PLE1205", # Too many arguments for `logging` format string; skip this since it doesn't recognize the {...} syntax
-    "N812", # comman pattern of import torch.nn.functional as F
-    "UP006",
+lint.ignore = [
+  "C901",
+  "PLR0912",
+  "S311",
+  "SLF001",
+  "PLR0915",
+  "PLR2004",
+  "B904",
+  "N806",
+  "PLR0911",
+  "DTZ005",
+  "NPY002",  # Replace legacy `np.random.uniform` call with `np.random.Generator`
+  "SIM105",  # Use `contextlib.suppress(queue.Empty)` instead of `try`-`except`-`pass`
+  "TC001",
+  "TC002",
+  "TC003",  # move imports into a type-checking block
+  "PT018",  # multiple parts in assert
+  "SLF001",  # access private member
+  "SIM102",  # nested if
+  "FBT",  # Boolean positional value in function call
+  "C416",  # dict comprehension
+  "TRY",
+  "EM",  # exception messages
+  "S101",
+  "S301",  # assert, pickle
+  "PTH103",
+  "PTH111",
+  "PTH118",
+  "PTH123",
+  "PTH100",
+  "PTH120",  # os.makedirs, os.path.expanduser, etc.
+  "ARG001",
+  "ARG002",  # unused function arg
+  "T201",  # print statements
+  "COM812",  # trailing comma missing
+  "ERA001",  # commented out code
+  "INP001",  # file part of an implicit namespace package. Add an `__init__.py`.
+  "EXE",  # file is executable but no shebang is present
+  "FIX",  # lines with todo comments
+  "TD",  # names/colon for assigning todo comments
+  "D",  # docstring details for public functions
+  "ANN",  # return type annotations for public functions
+  "S603",  # check for untrusted input for subprocess
+  "SIM108",  # ternary operator enforcement
+  "S108",  # portable path
+  "S607",  # partial executable path
+  "RUF012",
+  "RUF013",
+  "RUF005",  # iterable unpacking
+  "BLE001",  # blind exception
+  "PLR0913",  # number of args to a function
+  "B026",  # Star-arg unpacking after a keyword argument
+  "PLE1205",  # Too many arguments for `logging` format string; skip this since it doesn't recognize the {...} syntax
+  "N812",  # comman pattern of import torch.nn.functional as F
+  "UP006",
+  "PLC0415",  # import not at top-level (all are legitimate deferred/conditional imports)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"src/holosoma/holosoma/simulator/isaacsim/**/*.py" = ["ALL"]  # Disable until Jenkins has access to IsaacLab
-"src/holosoma/holosoma/train_agent.py" = ["PLC0415"]  # Disable since imports after SimApp are inherent to IsaacSim
-"src/holosoma/holosoma/utils/draw.py" = ["F401"]  # Disable since unused imports are required for the adapters
-"src/holosoma/holosoma/utils/eval_utils.py" = ["PLC0415"]  # Disable since imports after SimApp are inherent to IsaacSim
+"src/holosoma/holosoma/simulator/isaacsim/**/*.py" = [
+  "ALL",
+]  # Disable until Jenkins has access to IsaacLab
+"src/holosoma/holosoma/train_agent.py" = [
+  "PLC0415",
+]  # Disable since imports after SimApp are inherent to IsaacSim
+"src/holosoma/holosoma/utils/draw.py" = [
+  "F401",
+]  # Disable since unused imports are required for the adapters
+"src/holosoma/holosoma/utils/eval_utils.py" = [
+  "PLC0415",
+]  # Disable since imports after SimApp are inherent to IsaacSim
 
-[dependency-groups]
-dev = [
-    "jinja2>=3.1.6",
-    "numpy>=2.4.2",
-    "ruff>=0.15.1",
-    "slack>=0.0.2",
-    "slack-sdk>=3.40.0",
-    "torch>=2.10.0",
-    "trimesh>=4.11.2",
-    "ty>=0.0.17",
-    "tyro>=1.0.6",
-    "wandb>=0.25.0",
+[tool.ty.environment]
+extra-paths = [
+  "src/holosoma",
+  "src/holosoma_inference",
+  "src/holosoma_retargeting",
 ]
+
+[tool.ty.src]
+exclude = [
+  "src/holosoma/holosoma/simulator/isaacsim/**",
+  "src/holosoma/holosoma/simulator/isaacgym/**",
+  "src/holosoma/holosoma/bridge/ros2/**",
+  "src/holosoma/holosoma/bridge/booster/**",
+  "src/holosoma/holosoma/bridge/unitree/unitree_sdk2py_bridge.py",
+  "src/holosoma/holosoma/simulator/mujoco/mujoco.py",
+  "src/holosoma/holosoma/simulator/mujoco/scene_manager.py",
+  "src/holosoma/holosoma/simulator/mujoco/video_recorder.py",
+  "src/holosoma/holosoma/simulator/mujoco/backends/base.py",
+  "src/holosoma/holosoma/simulator/mujoco/backends/classic_backend.py",
+  "src/holosoma/holosoma/simulator/mujoco/backends/warp_randomization.py",
+  "src/holosoma/holosoma/simulator/mujoco/backends/warp_backend.py",
+  "src/holosoma/holosoma/simulator/shared/virtual_gantry.py",
+  "src/holosoma/holosoma/utils/adapters/isaacgym_draw_adapter.py",
+  "src/holosoma/holosoma/utils/adapters/mujoco_draw_adapter.py",
+  "src/holosoma/holosoma/utils/sim_utils.py",
+  "src/holosoma/holosoma/utils/warp_utils.py",
+  "src/holosoma/holosoma/managers/randomization/terms/locomotion.py",
+  "src/holosoma/holosoma/envs/wbt/wbt_manager.py",
+  "src/holosoma/holosoma/managers/command/terms/wbt.py",
+  "src/holosoma_inference/holosoma_inference/policies/wbt.py",
+  "src/holosoma_retargeting/holosoma_retargeting/src/interaction_mesh_retargeter.py",
+  "src/holosoma_retargeting/holosoma_retargeting/evaluation/eval_retargeting.py",
+  "src/holosoma_retargeting/holosoma_retargeting/data_conversion/convert_data_format_mj.py",
+  "src/holosoma_inference/holosoma_inference/sdk/unitree/**",
+  "src/holosoma_inference/holosoma_inference/sdk/command_sender/unitree/**",
+  "src/holosoma_inference/holosoma_inference/sdk/booster/**",
+  "src/holosoma_inference/holosoma_inference/sdk/command_sender/booster/**",
+  "src/holosoma_inference/holosoma_inference/sdk/state_processor/unitree/unitree_state_processor.py",
+  "src/holosoma_inference/holosoma_inference/sdk/state_processor/booster/booster_state_processor.py",
+  "src/holosoma_inference/holosoma_inference/sdk/interface_wrapper.py",
+  "src/holosoma_inference/holosoma_inference/policies/base.py",
+  "src/holosoma_inference/holosoma_inference/policies/wbt_utils.py",
+  "tests/nightly/generate_report.py",
+]
+
+[tool.uv.sources]
+mujoco-warp = { git = "https://github.com/google-deepmind/mujoco_warp" }

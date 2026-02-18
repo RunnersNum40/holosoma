@@ -14,8 +14,8 @@ import smplx  # type: ignore[import-not-found]
 import torch
 import trimesh
 from jinja2 import Template
-from scipy.spatial import Delaunay  # type: ignore[import-untyped]
-from scipy.spatial.transform import Rotation as R  # type: ignore[import-untyped]  # noqa: N817
+from scipy.spatial import Delaunay
+from scipy.spatial.transform import Rotation as R  # noqa: N817
 
 
 def load_intermimic_data(file_path):
@@ -73,7 +73,7 @@ def load_object_data(
     obj_mesh = trimesh.load(object_file, force="mesh")
 
     if bounding_box_oriented:
-        points = obj_mesh.bounding_box_oriented.vertices
+        points = obj_mesh.bounding_box_oriented.vertices  # ty: ignore[unresolved-attribute]
     elif surface_weights is not None:
         if use_face_normals:
             # Use face-normal-based weighted sampling

@@ -118,11 +118,11 @@ def run_smplx_model(
         pred_joints.append(pred_body.Jtr)
         pred_verts.append(pred_body.v)
 
-    x_pred_smpl_joints = torch.cat(pred_joints, axis=0)  # () X 52 X 3
+    x_pred_smpl_joints = torch.cat(pred_joints, dim=0)  # () X 52 X 3
 
     x_pred_smpl_joints = x_pred_smpl_joints[cat_idx_map]  # (BS*T) X 22 X 3
 
-    x_pred_smpl_verts = torch.cat(pred_verts, axis=0)
+    x_pred_smpl_verts = torch.cat(pred_verts, dim=0)
     x_pred_smpl_verts = x_pred_smpl_verts[cat_idx_map]  # (BS*T) X 6890 X 3
 
     x_pred_smpl_joints = x_pred_smpl_joints.reshape(bs, num_steps, -1, 3)  # BS X T X 22 X 3/BS X T X 24 X 3

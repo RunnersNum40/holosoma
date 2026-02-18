@@ -21,13 +21,13 @@ def _find_input_dim_from_module(module: torch.nn.Module) -> int:
     # Strategy 1: PPO-style - actor_module.module (torch.nn.Sequential)
     if hasattr(module, "actor_module") and hasattr(module.actor_module, "module"):
         core_model = module.actor_module.module
-        if hasattr(core_model[0], "in_features"):
-            return core_model[0].in_features
+        if hasattr(core_model[0], "in_features"):  # ty: ignore[not-subscriptable]
+            return core_model[0].in_features  # ty: ignore[not-subscriptable]
 
     # Strategy 2: FastSAC/FastTD3-style - .net attribute
-    if hasattr(module, "net") and len(module.net) > 0:
-        if hasattr(module.net[0], "in_features"):
-            return module.net[0].in_features
+    if hasattr(module, "net") and len(module.net) > 0:  # ty: ignore[invalid-argument-type]
+        if hasattr(module.net[0], "in_features"):  # ty: ignore[not-subscriptable]
+            return module.net[0].in_features  # ty: ignore[not-subscriptable, invalid-return-type]
 
     # Strategy 3: Find first Linear layer in module tree
     for submodule in module.modules():
@@ -129,7 +129,7 @@ def export_multi_agent_decouple_policy_as_onnx(wrapper, path, exported_policy_na
     # Export to ONNX
     torch.onnx.export(
         wrapper,
-        example_input_list,
+        example_input_list,  # ty: ignore[invalid-argument-type]
         path,
         verbose=False,
         input_names=[f"actor_obs_{body_key}" for body_key in body_keys],
@@ -282,7 +282,7 @@ def get_command_ranges_from_env(env: BaseTask) -> dict | None:
     if env.command_manager is not None:
         locomotion_cmd = env.command_manager.get_state("locomotion_command")
         if locomotion_cmd is not None and hasattr(locomotion_cmd, "command_ranges"):
-            return locomotion_cmd.command_ranges
+            return locomotion_cmd.command_ranges  # ty: ignore[invalid-return-type]
     return None
 
 

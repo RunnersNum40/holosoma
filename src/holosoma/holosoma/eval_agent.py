@@ -68,7 +68,7 @@ def run_eval_with_tyro(
                 f"{algo_class.__name__} is missing an `export` method required for ONNX export during evaluation."
             )
 
-        algo.export(onnx_file_path=exported_onnx_path)  # type: ignore[attr-defined]
+        algo.export(onnx_file_path=exported_onnx_path)
         logger.info(f"Exported policy as onnx to: {exported_onnx_path}")
 
     algo.evaluate_policy(

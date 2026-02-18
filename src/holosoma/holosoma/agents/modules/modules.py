@@ -336,7 +336,8 @@ class BaseModule(nn.Module):
                 current_index += input_dim
 
             else:
-                current_function_name = inspect.currentframe().f_code.co_name
+                frame = inspect.currentframe()
+                current_function_name = frame.f_code.co_name if frame is not None else "unknown"
                 raise ValueError(f"{current_function_name} - Unknown input type: {each_input}")
 
     def _calculate_output_dim(self):
@@ -346,7 +347,8 @@ class BaseModule(nn.Module):
             if isinstance(each_output, (int, float)):
                 self.output_dim += each_output
             else:
-                current_function_name = inspect.currentframe().f_code.co_name
+                frame = inspect.currentframe()
+                current_function_name = frame.f_code.co_name if frame is not None else "unknown"
                 raise ValueError(f"{current_function_name} - Unknown output type: {each_output}")
 
     def _build_network_layer(self, module_config: ModuleConfig):

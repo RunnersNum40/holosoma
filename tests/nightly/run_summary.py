@@ -125,13 +125,13 @@ def get_latest_report_url() -> str | None:
         # Search for a report matching the current GitHub run ID
         if GITHUB_RUN_ID:
             for report in reports:
-                if GITHUB_RUN_ID in report.display_name:
+                if report.display_name and GITHUB_RUN_ID in report.display_name:
                     return report.url
 
         # Fall back to the most recent report
         # Reports are ordered by creation time (newest first)
         for report in reports:
-            if "Nightly Training Report" in report.display_name:
+            if report.display_name and "Nightly Training Report" in report.display_name:
                 return report.url
 
     except Exception as e:

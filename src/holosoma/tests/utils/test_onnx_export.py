@@ -19,7 +19,7 @@ class ActorWrapper(nn.Module):
         self.actor = actor
 
     def forward(self, actor_obs: torch.Tensor) -> torch.Tensor:
-        return self.actor.act_inference({"actor_obs": actor_obs})
+        return self.actor.act_inference({"actor_obs": actor_obs})  # ty: ignore[call-non-callable]
 
 
 def test_export_policy_as_onnx():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Any, cast
 
 import torch
 import torch.distributed as dist
@@ -12,6 +12,16 @@ from torch.amp import GradScaler
 
 
 class SimpleReplayBuffer(nn.Module):
+    observations: torch.Tensor
+    actions: torch.Tensor
+    rewards: torch.Tensor
+    dones: torch.Tensor
+    truncations: torch.Tensor
+    next_observations: torch.Tensor
+    critic_observations: torch.Tensor
+    next_critic_observations: torch.Tensor
+    ptr: int
+
     def __init__(
         self,
         n_env: int,
@@ -55,12 +65,13 @@ class SimpleReplayBuffer(nn.Module):
         self,
         tensor_dict: TensorDict,
     ):
-        observations = tensor_dict["observations"]
-        actions = tensor_dict["actions"]
-        rewards = tensor_dict["next"]["rewards"]
-        dones = tensor_dict["next"]["dones"]
-        truncations = tensor_dict["next"]["truncations"]
-        next_observations = tensor_dict["next"]["observations"]
+        next_data = cast("TensorDict", tensor_dict["next"])
+        observations = cast("torch.Tensor", tensor_dict["observations"])
+        actions = cast("torch.Tensor", tensor_dict["actions"])
+        rewards = cast("torch.Tensor", next_data["rewards"])
+        dones = cast("torch.Tensor", next_data["dones"])
+        truncations = cast("torch.Tensor", next_data["truncations"])
+        next_observations = cast("torch.Tensor", next_data["observations"])
 
         ptr = self.ptr % self.buffer_size
         self.observations[:, ptr] = observations
@@ -69,8 +80,8 @@ class SimpleReplayBuffer(nn.Module):
         self.dones[:, ptr] = dones
         self.truncations[:, ptr] = truncations
         self.next_observations[:, ptr] = next_observations
-        critic_observations = tensor_dict["critic_observations"]
-        next_critic_observations = tensor_dict["next"]["critic_observations"]
+        critic_observations = cast("torch.Tensor", tensor_dict["critic_observations"])
+        next_critic_observations = cast("torch.Tensor", next_data["critic_observations"])
         # Store full critic observations
         self.critic_observations[:, ptr] = critic_observations
         self.next_critic_observations[:, ptr] = next_critic_observations
@@ -219,7 +230,7 @@ class SimpleReplayBuffer(nn.Module):
             next_observations = final_next_observations.reshape(self.n_env * batch_size, self.n_obs)
 
         out = TensorDict(
-            {
+            {  # ty: ignore[invalid-argument-type]
                 "observations": observations,
                 "actions": actions,
                 "next": {
@@ -233,7 +244,7 @@ class SimpleReplayBuffer(nn.Module):
             batch_size=self.n_env * batch_size,
         )
         out["critic_observations"] = critic_observations
-        out["next"]["critic_observations"] = next_critic_observations
+        cast("TensorDict", out["next"])["critic_observations"] = next_critic_observations
 
         if self.n_steps > 1 and self.ptr >= self.buffer_size:
             # Roll back the truncation flags introduced for safe sampling
@@ -243,6 +254,11 @@ class SimpleReplayBuffer(nn.Module):
 
 class EmpiricalNormalization(nn.Module):
     """Normalize mean and variance of values based on empirical values."""
+
+    _mean: torch.Tensor
+    _var: torch.Tensor
+    _std: torch.Tensor
+    count: torch.Tensor
 
     def __init__(self, shape, device, eps=1e-2, until=None):
         """Initialize EmpiricalNormalization module.
@@ -286,10 +302,10 @@ class EmpiricalNormalization(nn.Module):
         if self.until is not None and self.count >= self.until:
             return
 
-        if dist.is_available() and dist.is_initialized():
+        if dist.is_available() and dist.is_initialized():  # ty: ignore[possibly-missing-attribute]
             # Calculate global batch size arithmetically
             local_batch_size = x.shape[0]
-            world_size = dist.get_world_size()
+            world_size = dist.get_world_size()  # ty: ignore[possibly-missing-attribute]
             global_batch_size = world_size * local_batch_size
 
             # Calculate the stats
@@ -299,7 +315,7 @@ class EmpiricalNormalization(nn.Module):
 
             # Sync the stats across all processes
             stats_to_sync = torch.cat([local_sum_shifted, local_sum_sq_shifted], dim=0)
-            dist.all_reduce(stats_to_sync, op=dist.ReduceOp.SUM)
+            dist.all_reduce(stats_to_sync, op=dist.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
             global_sum_shifted, global_sum_sq_shifted = stats_to_sync
 
             # Calculate the mean and variance of the global batch

@@ -161,7 +161,7 @@ def create_video(video_frames, fps, save_dir, output_format="mp4", wandb_logging
 
     try:
         # Step 1: Create intermediate video with OpenCV
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # ty: ignore[unresolved-attribute]
         out = cv2.VideoWriter(str(temp_raw), fourcc, fps, (w, h))
         temp_files_to_cleanup.append(temp_raw)
 

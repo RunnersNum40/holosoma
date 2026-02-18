@@ -121,7 +121,7 @@ def main(annotated_config=None):
     """Main entry point. Extensions can pass their own AnnotatedInferenceConfig."""
     if annotated_config is None:
         annotated_config = AnnotatedInferenceConfig
-    config = tyro.cli(annotated_config, config=TYRO_CONFIG)
+    config = tyro.cli(annotated_config, config=TYRO_CONFIG)  # ty: ignore[no-matching-overload]
     run_policy(config)
 
 

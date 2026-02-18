@@ -89,7 +89,7 @@ class TestBasicJitCompilation:
         assert torch.equal(result1, result2), "Cached function should produce identical results"
 
         # The wrapped function should be the same object (cached)
-        assert cached_function.__wrapped__ is cached_function.__wrapped__, "Function should be cached"
+        assert cached_function.__wrapped__ is cached_function.__wrapped__, "Function should be cached"  # ty: ignore[unresolved-attribute]
 
 
 class TestProxyObjectIntegration:
@@ -195,8 +195,8 @@ class TestNestedJitFunctions:
             assert torch.allclose(result, expected), "Main function should work correctly"
 
             # Both functions should have graphs
-            assert hasattr(helper_function.__wrapped__, "graph"), "Helper function should be compiled"
-            assert hasattr(main_function.__wrapped__, "graph"), "Main function should be compiled"
+            assert hasattr(helper_function.__wrapped__, "graph"), "Helper function should be compiled"  # ty: ignore[unresolved-attribute]
+            assert hasattr(main_function.__wrapped__, "graph"), "Main function should be compiled"  # ty: ignore[unresolved-attribute]
 
         except Exception as e:
             # If nested JIT calls fail, that's a known limitation we can document
@@ -215,7 +215,7 @@ class TestJitGraphInspection:
             w = torch.matmul(z, z.T)
             return torch.relu(w)
 
-        wrapped_func = complex_function.__wrapped__
+        wrapped_func = complex_function.__wrapped__  # ty: ignore[unresolved-attribute]
         graph_str = str(wrapped_func.graph)
 
         # Check for expected operations (matmul can be aten::matmul or aten::mm)
@@ -244,7 +244,7 @@ class TestJitGraphInspection:
             c = b - 1
             return c  # noqa: RET504 Should optimize to x * 2 + 1
 
-        wrapped_func = optimization_test.__wrapped__
+        wrapped_func = optimization_test.__wrapped__  # ty: ignore[unresolved-attribute]
 
         # Test that we can inspect the graph
         graph = wrapped_func.graph
@@ -285,7 +285,7 @@ class TestProxyCompatibleDecorator:
             return x + 10
 
         mock_view = MockMujocoView([1.0, 2.0, 3.0])
-        result = process_function(mock_view)
+        result = process_function(mock_view)  # ty: ignore[invalid-argument-type]
         expected = mock_view.data + 10
 
         assert torch.allclose(result, expected), "Should work with proxy objects"
@@ -308,8 +308,8 @@ class TestProxyCompatibleDecorator:
 
         bad_proxy = BadProxy()
 
-        with pytest.raises(TypeError, match="appeared to be a proxy.*failed conversion"):
-            test_function(bad_proxy)
+        with pytest.raises(TypeError, match=r"appeared to be a proxy.*failed conversion"):
+            test_function(bad_proxy)  # ty: ignore[invalid-argument-type]
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ from holosoma_retargeting.config_types.retargeting import ParallelRetargetingCon
 from holosoma_retargeting.config_types.robot import RobotConfig  # noqa: E402
 
 # Import reusable functions from robot_retarget.py
-from holosoma_retargeting.examples.robot_retarget import (  # type: ignore[import-not-found]  # noqa: E402
+from holosoma_retargeting.examples.robot_retarget import (  # noqa: E402
     DEFAULT_DATA_FORMATS,
     build_retargeter_kwargs_from_config,
     create_task_constants,
@@ -39,9 +39,9 @@ from holosoma_retargeting.examples.robot_retarget import (  # type: ignore[impor
 
 # Import after path modification
 from holosoma_retargeting.src.interaction_mesh_retargeter import (  # noqa: E402
-    InteractionMeshRetargeter,  # type: ignore[import-not-found]
+    InteractionMeshRetargeter,
 )
-from holosoma_retargeting.src.utils import (  # type: ignore[import-not-found]  # noqa: E402
+from holosoma_retargeting.src.utils import (  # noqa: E402
     extract_foot_sticking_sequence_velocity,
     preprocess_motion_data,
 )
@@ -226,7 +226,7 @@ def process_single_task(args):
             )
 
         # Create retargeter
-        retargeter_kwargs = build_retargeter_kwargs_from_config(retargeter, constants, object_urdf_path, task_type)
+        retargeter_kwargs = build_retargeter_kwargs_from_config(retargeter, constants, object_urdf_path, task_type)  # ty: ignore[invalid-argument-type]
         retargeter = InteractionMeshRetargeter(**retargeter_kwargs)
 
         # Preprocess motion data

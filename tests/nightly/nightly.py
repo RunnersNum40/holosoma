@@ -61,7 +61,7 @@ def validate_wandb_metrics(config: AnnotatedExperimentConfig):
 
 
 def main():
-    config = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)
+    config = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)  # ty: ignore[no-matching-overload]
 
     # Check if multigpu is requested and we're not already in a torchrun process
     if config.training.multigpu and "RANK" not in os.environ:

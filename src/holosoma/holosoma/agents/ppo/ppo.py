@@ -536,7 +536,7 @@ class PPO(BaseAlgo):
 
             # Reduce the KL divergence across all GPUs
             if self.is_multi_gpu:
-                torch.distributed.all_reduce(kl_mean, op=torch.distributed.ReduceOp.SUM)
+                torch.distributed.all_reduce(kl_mean, op=torch.distributed.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
                 kl_mean /= self.gpu_world_size
         return kl_mean
 
@@ -553,7 +553,7 @@ class PPO(BaseAlgo):
         for param_group in self.critic_optimizer.param_groups:
             param_group["lr"] = self.critic_learning_rate
 
-    def load(self, ckpt_path: str | None) -> dict | None:
+    def load(self, ckpt_path: str | None) -> dict | None:  # ty: ignore[invalid-method-override]
         if ckpt_path is not None:
             logger.info(f"Loading checkpoint from {ckpt_path}")
             loaded_dict = torch.load(ckpt_path, map_location=self.device)
@@ -570,7 +570,7 @@ class PPO(BaseAlgo):
             return loaded_dict.get("infos")
         return None
 
-    def save(self, path, infos=None):
+    def save(self, path, infos=None):  # ty: ignore[invalid-method-override]
         checkpoint_dict = {
             "actor_model_state_dict": self.actor.state_dict(),
             "critic_model_state_dict": self.critic.state_dict(),
@@ -663,7 +663,7 @@ class PPO(BaseAlgo):
             return
         all_grads = torch.cat(grads)
 
-        torch.distributed.all_reduce(all_grads, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(all_grads, op=torch.distributed.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
         all_grads /= self.gpu_world_size
 
         offset = 0
@@ -678,11 +678,11 @@ class PPO(BaseAlgo):
         """Synchronize actor and critic weights across all GPUs."""
         # Broadcast actor weights from rank 0 to all other ranks
         for param in self.actor.parameters():
-            torch.distributed.broadcast(param.data, src=0)
+            torch.distributed.broadcast(param.data, src=0)  # ty: ignore[possibly-missing-attribute]
 
         # Broadcast critic weights from rank 0 to all other ranks
         for param in self.critic.parameters():
-            torch.distributed.broadcast(param.data, src=0)
+            torch.distributed.broadcast(param.data, src=0)  # ty: ignore[possibly-missing-attribute]
 
         logger.info(f"Synchronized model weights across {self.gpu_world_size} GPUs")
 
@@ -693,7 +693,7 @@ class PPO(BaseAlgo):
                 (advantages**2).mean(),
             ]
         )
-        torch.distributed.all_reduce(local_stats, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(local_stats, op=torch.distributed.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
 
         global_mean = local_stats[0] / self.gpu_world_size
         global_sq_mean = local_stats[1] / self.gpu_world_size
@@ -718,7 +718,7 @@ class PPO(BaseAlgo):
 
         return ActorWrapper(self.actor)
 
-    def env_step(self, actor_state):
+    def env_step(self, actor_state):  # ty: ignore[invalid-method-override]
         obs_dict, rewards, dones, extras = self.env.step(actor_state)
         actor_state.update({"obs": obs_dict, "rewards": rewards, "dones": dones, "extras": extras})
         return actor_state

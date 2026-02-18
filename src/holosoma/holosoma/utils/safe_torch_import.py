@@ -1,6 +1,6 @@
 # Ensure that torch is imported after isaacgym, if isaacgym is installed.
 try:
-    import isaacgym  # noqa: F401
+    import isaacgym  # noqa: F401  # ty: ignore[unresolved-import]
 except ImportError:
     pass
 

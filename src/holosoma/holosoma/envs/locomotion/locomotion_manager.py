@@ -109,20 +109,20 @@ class LeggedRobotLocomotionManager(BaseTask):
             command_tensor = torch.as_tensor(command, device=self.device, dtype=commands.dtype)
             commands[:] = command_tensor.view(1, -1).expand_as(commands)
         gait_state = self.command_manager.get_state("locomotion_gait")
-        gait_state.set_eval_mode(True)
+        gait_state.set_eval_mode(True)  # ty: ignore[unresolved-attribute]
 
     def _setup_simulator_next_task(self):
         pass
 
     def _setup_simulator_control(self):
-        self.simulator.commands = self.command_manager.commands
+        self.simulator.commands = self.command_manager.commands  # ty: ignore[unresolved-attribute]
 
     def _get_envs_to_refresh(self):
         return self.need_to_refresh_envs.nonzero(as_tuple=False).flatten()
 
     def _refresh_envs_after_reset(self, env_ids):
         self.simulator.set_actor_root_state_tensor(env_ids, self.simulator.all_root_states)
-        self.simulator.set_dof_state_tensor(env_ids, self.simulator.dof_state)
+        self.simulator.set_dof_state_tensor(env_ids, self.simulator.dof_state)  # ty: ignore[unresolved-attribute]
         self.simulator.clear_contact_forces_history(env_ids)
         self.need_to_refresh_envs[env_ids] = False
         self.simulator.refresh_sim_tensors()
@@ -139,7 +139,7 @@ class LeggedRobotLocomotionManager(BaseTask):
         # Assign commands to simulator for headless recording
         if hasattr(self.simulator, "headless_recording") and self.simulator.headless_recording:
             if hasattr(self.command_manager, "commands"):
-                self.simulator.commands = self.command_manager.commands
+                self.simulator.commands = self.command_manager.commands  # ty: ignore[invalid-assignment]
 
     def _post_compute_observations_callback(self):
         return
@@ -222,16 +222,16 @@ class LeggedRobotLocomotionManager(BaseTask):
     def synchronize_curriculum_state(self, *, device: str, world_size: int) -> None:
         if world_size <= 1:
             return
-        if not torch.distributed.is_available() or not torch.distributed.is_initialized():
+        if not torch.distributed.is_available() or not torch.distributed.is_initialized():  # ty: ignore[possibly-missing-attribute]
             return
         tracker = self._get_average_episode_tracker()
         avg_tensor = tracker.get_average().clone().detach().to(device)
-        torch.distributed.broadcast(avg_tensor, src=0)
+        torch.distributed.broadcast(avg_tensor, src=0)  # ty: ignore[possibly-missing-attribute]
         tracker.set_average(avg_tensor.to(self.device), suppress_update=False)
 
         if hasattr(self, "reward_penalty_scale"):
             penalty_tensor = torch.tensor(float(self.reward_penalty_scale), device=device, dtype=torch.float)
-            torch.distributed.broadcast(penalty_tensor, src=0)
+            torch.distributed.broadcast(penalty_tensor, src=0)  # ty: ignore[possibly-missing-attribute]
             self.reward_penalty_scale = float(penalty_tensor.item())
 
     def _push_robots(self, env_ids):
@@ -243,7 +243,7 @@ class LeggedRobotLocomotionManager(BaseTask):
         if self.randomization_manager is not None:
             state = self.randomization_manager.get_state("push_randomizer_state")
             if state is not None:
-                max_vel_tensor = state.max_push_vel.clone().to(self.device)
+                max_vel_tensor = state.max_push_vel.clone().to(self.device)  # ty: ignore[unresolved-attribute]
 
         if not isinstance(max_vel_tensor, torch.Tensor) or max_vel_tensor.numel() != 2:
             raise ValueError("Locomotion push velocity vector must have exactly 2 components.")
@@ -313,7 +313,7 @@ class LeggedRobotLocomotionManager(BaseTask):
                     new_xy = current_xy + xy_offsets
 
                     terrain_state = self.terrain_manager.get_state("locomotion_terrain")
-                    terrain_heights = terrain_state.query_terrain_heights(
+                    terrain_heights = terrain_state.query_terrain_heights(  # ty: ignore[unresolved-attribute]
                         new_xy,
                         use_grid_sampling=spawn_cfg.use_grid_sampling,
                         grid_size=spawn_cfg.grid_size,

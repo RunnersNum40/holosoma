@@ -134,24 +134,25 @@ class BasicSdk2Bridge(ABC):
                 key_value += key_state[i] << i
 
             if hasattr(self, "wireless_controller"):
-                self.wireless_controller.keys = key_value
-                self.wireless_controller.lx = self.joystick.get_axis(self.axis_id["LX"])
-                self.wireless_controller.ly = -self.joystick.get_axis(self.axis_id["LY"])
-                self.wireless_controller.rx = self.joystick.get_axis(self.axis_id["RX"])
-                self.wireless_controller.ry = -self.joystick.get_axis(self.axis_id["RY"])
+                wc = self.wireless_controller
+                wc.keys = key_value  # ty: ignore[unresolved-attribute]
+                wc.lx = self.joystick.get_axis(self.axis_id["LX"])  # ty: ignore[unresolved-attribute]
+                wc.ly = -self.joystick.get_axis(self.axis_id["LY"])  # ty: ignore[unresolved-attribute]
+                wc.rx = self.joystick.get_axis(self.axis_id["RX"])  # ty: ignore[unresolved-attribute]
+                wc.ry = -self.joystick.get_axis(self.axis_id["RY"])  # ty: ignore[unresolved-attribute]
 
                 # Debug logging for joystick values
                 logger.debug(
-                    f"Joystick axes - LX: {self.wireless_controller.lx:.3f}, "
-                    f"LY: {self.wireless_controller.ly:.3f}, "
-                    f"RX: {self.wireless_controller.rx:.3f}, "
-                    f"RY: {self.wireless_controller.ry:.3f}, "
+                    f"Joystick axes - LX: {wc.lx:.3f}, "  # ty: ignore[unresolved-attribute]
+                    f"LY: {wc.ly:.3f}, "  # ty: ignore[unresolved-attribute]
+                    f"RX: {wc.rx:.3f}, "  # ty: ignore[unresolved-attribute]
+                    f"RY: {wc.ry:.3f}, "  # ty: ignore[unresolved-attribute]
                     f"keys: 0x{key_value:04x}"
                 )
 
                 # Only publish if the subclass has a publisher (C++ bindings handle this differently)
                 if hasattr(self, "wireless_controller_puber"):
-                    self.wireless_controller_puber.Write(self.wireless_controller)
+                    self.wireless_controller_puber.Write(wc)  # ty: ignore[unresolved-attribute]
 
     def setup_joystick(self, device_id=0, js_type="xbox"):
         """Setup joystick/gamepad."""

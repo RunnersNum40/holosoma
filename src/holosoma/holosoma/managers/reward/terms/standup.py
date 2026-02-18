@@ -8,11 +8,11 @@ from holosoma.managers.observation.terms.locomotion import get_projected_gravity
 from holosoma.utils.safe_torch_import import torch
 
 if TYPE_CHECKING:
-    from holosoma.envs.base_task.base_task import BaseTask
+    from holosoma.envs.locomotion.locomotion_manager import LeggedRobotLocomotionManager
 
 
 def shoulder_height_tracking(
-    env: BaseTask,
+    env: LeggedRobotLocomotionManager,
     *,
     target_height: float = 0.9,
     tracking_sigma: float = 0.25,
@@ -51,7 +51,7 @@ def shoulder_height_tracking(
 
 
 def uprightness_height_gated(
-    env: BaseTask,
+    env: LeggedRobotLocomotionManager,
     *,
     height_threshold: float = 0.5,
 ) -> torch.Tensor:
@@ -89,7 +89,7 @@ def uprightness_height_gated(
 
 
 def non_foot_contact_penalty(
-    env: BaseTask,
+    env: LeggedRobotLocomotionManager,
     *,
     force_threshold: float = 1.0,
 ) -> torch.Tensor:
@@ -109,15 +109,15 @@ def non_foot_contact_penalty(
     if not hasattr(env, "_standup_non_foot_body_indices"):
         feet_set = set(env.feet_indices.tolist())
         non_foot = [i for i in range(len(env.body_names)) if i not in feet_set]
-        env._standup_non_foot_body_indices = torch.tensor(non_foot, dtype=torch.long, device=env.device)
+        env._standup_non_foot_body_indices = torch.tensor(non_foot, dtype=torch.long, device=env.device)  # ty: ignore[invalid-assignment]
 
-    forces = env.simulator.contact_forces[:, env._standup_non_foot_body_indices, :]
+    forces = env.simulator.contact_forces[:, env._standup_non_foot_body_indices, :]  # ty: ignore[unresolved-attribute]
     is_contact = torch.norm(forces, dim=-1) > force_threshold
     return torch.sum(is_contact.float(), dim=1)
 
 
 def xy_drift_penalty(
-    env: BaseTask,
+    env: LeggedRobotLocomotionManager,
     *,
     max_drift: float = 0.75,
 ) -> torch.Tensor:
@@ -136,18 +136,18 @@ def xy_drift_penalty(
     current_xy = env.simulator.robot_root_states[:, :2]
 
     if not hasattr(env, "_standup_start_xy"):
-        env._standup_start_xy = current_xy.clone()
+        env._standup_start_xy = current_xy.clone()  # ty: ignore[invalid-assignment]
 
     reset_mask = env.episode_length_buf == 0
     if reset_mask.any():
-        env._standup_start_xy[reset_mask] = current_xy[reset_mask].clone()
+        env._standup_start_xy[reset_mask] = current_xy[reset_mask].clone()  # ty: ignore[unresolved-attribute]
 
-    displacement = torch.norm(current_xy - env._standup_start_xy, dim=1)
+    displacement = torch.norm(current_xy - env._standup_start_xy, dim=1)  # ty: ignore[unresolved-attribute]
     return torch.square(displacement / max_drift)
 
 
 def kinetic_energy_penalty(
-    env: BaseTask,
+    env: LeggedRobotLocomotionManager,
     *,
     velocity_scale: float = 10.0,
 ) -> torch.Tensor:
@@ -167,7 +167,7 @@ def kinetic_energy_penalty(
     if not hasattr(env, "_standup_ke_non_foot_indices"):
         feet_set = set(env.feet_indices.tolist())
         non_foot = [i for i in range(len(env.body_names)) if i not in feet_set]
-        env._standup_ke_non_foot_indices = torch.tensor(non_foot, dtype=torch.long, device=env.device)
+        env._standup_ke_non_foot_indices = torch.tensor(non_foot, dtype=torch.long, device=env.device)  # ty: ignore[invalid-assignment]
 
-    vel = env.simulator._rigid_body_vel[:, env._standup_ke_non_foot_indices, :]
+    vel = env.simulator._rigid_body_vel[:, env._standup_ke_non_foot_indices, :]  # ty: ignore[unresolved-attribute]
     return vel.square().sum(dim=(1, 2)) / velocity_scale

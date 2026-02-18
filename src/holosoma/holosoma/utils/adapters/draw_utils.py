@@ -34,7 +34,7 @@ def convert_to_list(pos: list[float] | tuple[float, float, float] | np.ndarray |
     if torch is not None and isinstance(pos, torch.Tensor):
         return pos.cpu().numpy().astype(np.float64).tolist()
     if isinstance(pos, np.ndarray):
-        return pos.astype(np.float64).tolist()
+        return pos.astype(np.float64).tolist()  # ty: ignore[no-matching-overload]
     if isinstance(pos, (list, tuple)):
         return list(pos)
     return list(pos)

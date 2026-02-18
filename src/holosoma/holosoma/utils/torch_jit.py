@@ -273,4 +273,4 @@ def torch_jit_script(func: F) -> Callable[..., Any]:
     # Store the complete chain: JIT compilation + proxy handling
     _COMPILED_FUNCTION_CACHE[func_key] = wrapped_func
 
-    return wrapped_func  # type: ignore[return-value]
+    return wrapped_func

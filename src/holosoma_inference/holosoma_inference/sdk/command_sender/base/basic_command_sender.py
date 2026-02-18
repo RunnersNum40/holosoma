@@ -17,7 +17,7 @@ def _get_config_value(config: RobotConfig | dict, key: str, default=None):
         return getattr(config, key)
     # Fall back to hydra
     if isinstance(config, dict):
-        return config.get(key, default)
+        return config.get(key, default)  # ty: ignore[no-matching-overload]
     raise RuntimeError(f"Unsupported type {type(config)}")
 
 
@@ -39,7 +39,7 @@ class BasicCommandSender(ABC):
         self.weak_motor_joint_index = []
         weak_motor_cfg = _get_config_value(self.config, "weak_motor_joint_index")
         if weak_motor_cfg:
-            for value in self.robot.WeakMotorJointIndex.values():
+            for value in self.robot.WeakMotorJointIndex.values():  # ty: ignore[unresolved-attribute]
                 self.weak_motor_joint_index.append(value)
 
         self.no_action = 0

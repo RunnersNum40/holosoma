@@ -172,7 +172,7 @@ class ExperimentConfig:
             self,
             algo=dataclasses.replace(
                 self.algo,
-                config=dataclasses.replace(  # type: ignore[arg-type]
+                config=dataclasses.replace(
                     self.algo.config,
                     num_learning_iterations=self.nightly.iterations,
                 ),

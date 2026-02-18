@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 import torch.nn.functional as F
 from torch import nn
 
 
 class Actor(nn.Module):
+    action_scale: torch.Tensor
+    action_bias: torch.Tensor
+
     def __init__(
         self,
         obs_indices: dict[str, dict[str, int]],
@@ -73,8 +78,9 @@ class Actor(nn.Module):
             nn.Linear(self.hidden_dim // 4, self.n_act, device=self.device),
         )
         self.fc_logstd = nn.Linear(self.hidden_dim // 4, self.n_act, device=self.device)
-        nn.init.constant_(self.fc_mu[0].weight, 0.0)
-        nn.init.constant_(self.fc_mu[0].bias, 0.0)
+        fc_mu_first = cast("nn.Linear", self.fc_mu[0])
+        nn.init.constant_(fc_mu_first.weight, 0.0)
+        nn.init.constant_(fc_mu_first.bias, 0.0)
         nn.init.constant_(self.fc_logstd.weight, 0.0)
         nn.init.constant_(self.fc_logstd.bias, 0.0)
 
@@ -291,6 +297,8 @@ class DistributionalQNetwork(nn.Module):
 
 
 class Critic(nn.Module):
+    q_support: torch.Tensor
+
     def __init__(
         self,
         obs_indices: dict[str, dict[str, int]],
@@ -366,7 +374,7 @@ class Critic(nn.Module):
         """Projection operation that includes q_support directly"""
         x = self.process_obs(obs)
         projections = [
-            qnet.projection(
+            cast("DistributionalQNetwork", qnet).projection(
                 x,
                 actions,
                 rewards,

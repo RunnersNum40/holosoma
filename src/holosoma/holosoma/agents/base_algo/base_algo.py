@@ -35,8 +35,8 @@ class BaseAlgo:
     def learn(self):
         return NotImplementedError
 
-    def load(self, path):
-        return NotImplementedError
+    def load(self, path: str | None = None) -> dict | None:
+        return NotImplementedError  # type: ignore[return-value]
 
     @property
     def inference_model(self):
@@ -47,7 +47,7 @@ class BaseAlgo:
         return NotImplementedError
 
     def env_step(self, actions, extra_info=None):
-        obs_dict, rewards, dones, extras = self.env.step(actions, extra_info)
+        obs_dict, rewards, dones, extras = self.env.step(actions, extra_info)  # ty: ignore[too-many-positional-arguments]
         return obs_dict, rewards, dones, extras
 
     def attach_checkpoint_metadata(

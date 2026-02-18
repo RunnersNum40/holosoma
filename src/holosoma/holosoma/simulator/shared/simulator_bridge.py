@@ -89,7 +89,7 @@ class SimulatorBridge:
     def _setup_joystick(self):
         """Setup joystick/gamepad for robot control."""
         try:
-            self.robot_bridge.setup_joystick(
+            self.robot_bridge.setup_joystick(  # ty: ignore[unresolved-attribute]
                 device_id=self.bridge_config.joystick_device, js_type=self.bridge_config.joystick_type
             )
             logger.info(
@@ -129,7 +129,7 @@ class SimulatorBridge:
             logger.debug("Wireless controller input published")
 
         # Read incoming commands from DDS
-        self.robot_bridge.low_cmd_handler()
+        self.robot_bridge.low_cmd_handler()  # ty: ignore[missing-argument]
 
         # Compute torques based on received commands
         self.robot_bridge.compute_torques()
@@ -137,7 +137,8 @@ class SimulatorBridge:
         # Apply torques to simulator
         # (for now: convert to/from tensor for unified interface, which is unnecessary for mujoco...)
         torques_tensor = torch.from_numpy(self.robot_bridge.torques).to(
-            device=self.simulator.device, dtype=torch.float32
+            device=self.simulator.device,  # ty: ignore[unresolved-attribute]
+            dtype=torch.float32,
         )
         self.simulator.apply_torques_at_dof(torques_tensor)
 

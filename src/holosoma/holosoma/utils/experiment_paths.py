@@ -123,7 +123,7 @@ def get_eval_log_dir(
     # Use training config for project, with fallback to logger config
     project: str | None = training_config.project
     if not project and hasattr(logger_config, "project"):
-        project = logger_config.project
+        project = logger_config.project  # ty: ignore[invalid-assignment]
 
     if project:
         return base_dir / project / eval_timestamp

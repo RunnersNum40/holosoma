@@ -30,13 +30,13 @@ def replay(tyro_config: ExperimentConfig):
     done = False
     while not done:
         env.simulator.sim.step()
-        done = env.step_visualize_motion(None)  # type: ignore[attr-defined]
+        done = env.step_visualize_motion(None)
 
     close_simulation_app(simulation_app)
 
 
 def main() -> None:
-    tyro_cfg = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)
+    tyro_cfg = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)  # ty: ignore[no-matching-overload]
     replay(tyro_cfg)
 
 

@@ -27,7 +27,7 @@ from holosoma_retargeting.config_types.retargeting import RetargetingConfig  # n
 from holosoma_retargeting.config_types.robot import RobotConfig  # noqa: E402
 from holosoma_retargeting.config_types.task import TaskConfig  # noqa: E402
 from holosoma_retargeting.src.interaction_mesh_retargeter import (  # noqa: E402
-    InteractionMeshRetargeter,  # type: ignore[import-not-found]
+    InteractionMeshRetargeter,
 )
 from holosoma_retargeting.src.utils import (  # noqa: E402
     augment_object_poses,

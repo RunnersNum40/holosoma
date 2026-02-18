@@ -28,7 +28,7 @@ class PPOActor(nn.Module):
         self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
         self.min_noise_std = module_config_dict.min_noise_std
         self.min_mean_noise_std = module_config_dict.min_mean_noise_std
-        self.distribution = None
+        self.distribution: Normal | None = None
         # disable args validation for speedup
         Normal.set_default_validate_args(False)
         print(f"Actor Module: {self.actor_module.module}")
@@ -59,14 +59,17 @@ class PPOActor(nn.Module):
 
     @property
     def action_mean(self):
+        assert self.distribution is not None
         return self.distribution.mean
 
     @property
     def action_std(self):
+        assert self.distribution is not None
         return self.distribution.stddev
 
     @property
     def entropy(self):
+        assert self.distribution is not None
         return self.distribution.entropy().sum(dim=-1)
 
     def update_distribution(self, actor_obs):
@@ -87,16 +90,18 @@ class PPOActor(nn.Module):
 
     def act(self, policy_state_dict):
         self.update_distribution(policy_state_dict["actor_obs"])
+        assert self.distribution is not None
         return self.distribution.sample()
 
     def get_actions_log_prob(self, actions):
+        assert self.distribution is not None
         return self.distribution.log_prob(actions).sum(dim=-1)
 
     def act_inference(self, policy_state_dict):
         return self.actor(policy_state_dict["actor_obs"])
 
     def to_cpu(self):
-        self.actor = deepcopy(self.actor).to("cpu")
+        self.actor_module = deepcopy(self.actor_module).to("cpu")
         self.std.to("cpu")
 
 
@@ -125,8 +130,15 @@ class PPOCritic(nn.Module):
 
 
 class PPOActorEncoder(PPOActor):
-    def __init__(self, obs_dim_dict, module_config_dict, num_actions, init_noise_std):
-        super().__init__(obs_dim_dict, module_config_dict, num_actions, init_noise_std)
+    def __init__(
+        self,
+        obs_dim_dict,
+        module_config_dict,
+        num_actions,
+        init_noise_std,
+        history_length: dict[str, int] | None = None,
+    ):
+        super().__init__(obs_dim_dict, module_config_dict, num_actions, init_noise_std, history_length or {})
         self.module_input_name = module_config_dict.layer_config.module_input_name
         self.encoder_input_name = module_config_dict.layer_config.encoder_input_name
 
@@ -158,8 +170,8 @@ class PPOActorEncoder(PPOActor):
 
 
 class PPOCriticEncoder(PPOCritic):
-    def __init__(self, obs_dim_dict, module_config_dict):
-        super().__init__(obs_dim_dict, module_config_dict)
+    def __init__(self, obs_dim_dict, module_config_dict, history_length: dict[str, int] | None = None):
+        super().__init__(obs_dim_dict, module_config_dict, history_length or {})
         self.module_input_name = module_config_dict.layer_config.module_input_name
         self.encoder_input_name = module_config_dict.layer_config.encoder_input_name
 

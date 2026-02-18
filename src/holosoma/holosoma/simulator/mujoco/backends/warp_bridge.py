@@ -35,7 +35,7 @@ class TorchArray:
             new_shape = (nworld,) + self._tensor.shape[1:]
             self._tensor = self._tensor.expand(new_shape)
 
-        self._is_cuda = not self._wp_array.device.is_cpu if self._wp_array.device is not None else False  # type: ignore[union-attr]
+        self._is_cuda = not self._wp_array.device.is_cpu if self._wp_array.device is not None else False
         self._torch_stream = self._setup_stream()
 
     def _setup_stream(self) -> torch.cuda.Stream | None:
@@ -54,6 +54,8 @@ class TorchArray:
     @property
     def wp_array(self) -> wp.array:
         return self._wp_array
+
+    __hash__ = None
 
     def __repr__(self) -> str:
         """Return string representation of the underlying tensor."""

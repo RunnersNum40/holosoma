@@ -218,7 +218,7 @@ class BaseTask:
         self.reset_envs_idx(env_ids)
 
         self.simulator.set_actor_root_state_tensor_robots(env_ids, self.simulator.robot_root_states)
-        self.simulator.set_dof_state_tensor_robots(env_ids, self.simulator.dof_state)
+        self.simulator.set_dof_state_tensor_robots(env_ids, self.simulator.dof_state)  # ty: ignore[unresolved-attribute]
 
         actions = torch.zeros(self.num_envs, self.dim_actions, device=self.device, requires_grad=False)
         actor_state = {}
@@ -302,10 +302,10 @@ class BaseTask:
     def _load_assets(self):
         self.simulator.load_assets()
         self.num_dof, self.num_bodies, self.dof_names, self.body_names = (
-            self.simulator.num_dof,
-            self.simulator.num_bodies,
-            self.simulator.dof_names,
-            self.simulator.body_names,
+            self.simulator.num_dof,  # ty: ignore[unresolved-attribute]
+            self.simulator.num_bodies,  # ty: ignore[unresolved-attribute]
+            self.simulator.dof_names,  # ty: ignore[unresolved-attribute]
+            self.simulator.body_names,  # ty: ignore[unresolved-attribute]
         )
 
         # check dimensions
@@ -333,7 +333,7 @@ class BaseTask:
            2.3 create actor with these properties and add them to the env
         3. Store indices of different bodies of the robot
         """
-        self.simulator.create_envs(self.num_envs, self._get_env_origins(), self.base_init_state)
+        self.simulator.create_envs(self.num_envs, self._get_env_origins(), self.base_init_state)  # ty: ignore[missing-argument]
 
     def _setup_robot_body_indices(self):
         """Hook for subclasses to prepare body index caches (default no-op)."""
@@ -475,13 +475,13 @@ class BaseTask:
         final_store = self.extras.setdefault("final_observations", {})
         for obs_key, values in final_obs_dict.items():
             if obs_key not in final_store:
-                final_store[obs_key] = torch.zeros_like(self.obs_buf_dict[obs_key])
+                final_store[obs_key] = torch.zeros_like(self.obs_buf_dict[obs_key])  # ty: ignore[invalid-argument-type]
             final_store[obs_key][env_ids] = values[env_ids]
 
     def _clip_observations(self):
         clip_limit = self.observation_manager.cfg.clip_observations
         for obs_key, obs_val in self.obs_buf_dict.items():
-            self.obs_buf_dict[obs_key] = torch.clip(obs_val, -clip_limit, clip_limit)
+            self.obs_buf_dict[obs_key] = torch.clip(obs_val, -clip_limit, clip_limit)  # ty: ignore[no-matching-overload]
 
     def _compute_reward(self):
         self.rew_buf[:] = self.reward_manager.compute(self.dt)

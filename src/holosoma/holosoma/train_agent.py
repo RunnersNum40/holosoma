@@ -78,7 +78,7 @@ def configure_multi_gpu() -> MultGPUConfig | None:
     if gpu_global_rank >= gpu_world_size:
         raise ValueError(f"Global rank '{gpu_global_rank}' is greater than or equal to world size '{gpu_world_size}'.")
 
-    torch.distributed.init_process_group(backend="nccl", rank=gpu_global_rank, world_size=gpu_world_size)
+    torch.distributed.init_process_group(backend="nccl", rank=gpu_global_rank, world_size=gpu_world_size)  # ty: ignore[possibly-missing-attribute]
     torch.cuda.set_device(gpu_local_rank)
 
     multi_gpu_config: MultGPUConfig = {
@@ -298,7 +298,7 @@ def train(tyro_config: ExperimentConfig, training_context: TrainingContext | Non
         # shutdown dist before SimApp closes ungracefully (IsaacLab)
         if is_distributed:
             logger.info("Shutting down distributed processes...")
-            dist.destroy_process_group()
+            dist.destroy_process_group()  # ty: ignore[possibly-missing-attribute]
     except Exception as e:
         tb_str = traceback.format_exc()
         logger.error(f"Exception occurred during training: {e}\n{tb_str}")
@@ -311,7 +311,7 @@ def train(tyro_config: ExperimentConfig, training_context: TrainingContext | Non
 
 
 def main() -> None:
-    tyro_cfg = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)
+    tyro_cfg = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)  # ty: ignore[no-matching-overload]
     print(tyro_cfg.curriculum)
     train(tyro_cfg)
 

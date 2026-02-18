@@ -1,4 +1,5 @@
 """Base interface for robot control."""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
@@ -38,9 +39,9 @@ class BaseInterface(ABC):
         cmd_q: np.ndarray,
         cmd_dq: np.ndarray,
         cmd_tau: np.ndarray,
-        dof_pos_latest: np.ndarray = None,
-        kp_override: np.ndarray = None,
-        kd_override: np.ndarray = None,
+        dof_pos_latest: np.ndarray | None = None,
+        kp_override: np.ndarray | None = None,
+        kd_override: np.ndarray | None = None,
     ):
         """
         Send low-level command to robot.

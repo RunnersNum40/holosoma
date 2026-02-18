@@ -5,7 +5,7 @@ import itertools
 import math
 import os
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Sequence
+from typing import Any, Callable, Dict, Sequence, cast
 
 import tqdm
 from holosoma.agents.base_algo.base_algo import BaseAlgo
@@ -73,7 +73,7 @@ class FastSACEnv:
 
     def step(self, actions: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, dict[str, Any]]:
         # Actions are now already scaled by the actor, so pass them directly to the environment
-        obs_dict, rew_buf, reset_buf, info_dict = self._env.step({"actions": actions})  # type: ignore[attr-defined]
+        obs_dict, rew_buf, reset_buf, info_dict = self._env.step({"actions": actions})
         actor_obs = torch.cat([obs_dict[k] for k in self._actor_obs_keys], dim=1)
         critic_obs = torch.cat([obs_dict[k] for k in self._critic_obs_keys], dim=1)
         if "final_observations" in info_dict:
@@ -150,7 +150,7 @@ class FastSACAgent(BaseAlgo):
     """
 
     config: FastSACConfig
-    env: FastSACEnv  # type: ignore[assignment]
+    env: FastSACEnv
     actor: Actor
     qnet: Critic
 
@@ -361,14 +361,14 @@ class FastSACAgent(BaseAlgo):
         """Synchronize actor, qnet, and log_alpha parameters across all GPUs."""
         # Broadcast actor weights from rank 0 to all other ranks
         for param in self.actor.parameters():
-            torch.distributed.broadcast(param.data, src=0)
+            torch.distributed.broadcast(param.data, src=0)  # ty: ignore[possibly-missing-attribute]
 
         # Broadcast qnet weights from rank 0 to all other ranks
         for param in self.qnet.parameters():
-            torch.distributed.broadcast(param.data, src=0)
+            torch.distributed.broadcast(param.data, src=0)  # ty: ignore[possibly-missing-attribute]
 
         # Broadcast log_alpha parameter from rank 0 to all other ranks
-        torch.distributed.broadcast(self.log_alpha.data, src=0)
+        torch.distributed.broadcast(self.log_alpha.data, src=0)  # ty: ignore[possibly-missing-attribute]
 
         # Load qnet_target weights from synced qnet
         self.qnet_target.load_state_dict(self.qnet.state_dict())
@@ -388,7 +388,7 @@ class FastSACAgent(BaseAlgo):
         if not grads:
             return
         flat = torch.cat(grads)
-        torch.distributed.all_reduce(flat, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(flat, op=torch.distributed.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
         flat /= self.gpu_world_size
         offset = 0
         for p in model.parameters():
@@ -410,18 +410,19 @@ class FastSACAgent(BaseAlgo):
         alpha_optimizer = self.alpha_optimizer
 
         with self._maybe_amp():
-            next_observations = data["next"]["observations"]
-            critic_observations = data["critic_observations"]
-            next_critic_observations = data["next"]["critic_observations"]
-            actions = data["actions"]
-            rewards = data["next"]["rewards"]
-            dones = data["next"]["dones"].bool()
-            truncations = data["next"]["truncations"].bool()
+            next_data = cast("TensorDict", data["next"])
+            next_observations = cast("torch.Tensor", next_data["observations"])
+            critic_observations = cast("torch.Tensor", data["critic_observations"])
+            next_critic_observations = cast("torch.Tensor", next_data["critic_observations"])
+            actions = cast("torch.Tensor", data["actions"])
+            rewards = cast("torch.Tensor", next_data["rewards"])
+            dones = cast("torch.Tensor", next_data["dones"]).bool()
+            truncations = cast("torch.Tensor", next_data["truncations"]).bool()
             bootstrap = (truncations | ~dones).float()
 
             with torch.no_grad():
                 next_state_actions, next_state_log_probs = actor.get_actions_and_log_probs(next_observations)
-                discount = args.gamma ** data["next"]["effective_n_steps"]
+                discount = args.gamma ** cast("torch.Tensor", next_data["effective_n_steps"])
 
                 target_distributions = qnet_target.projection(
                     next_critic_observations,
@@ -465,7 +466,7 @@ class FastSACAgent(BaseAlgo):
 
             if self.is_multi_gpu:
                 if self.log_alpha.grad is not None:
-                    torch.distributed.all_reduce(self.log_alpha.grad.data, op=torch.distributed.ReduceOp.SUM)
+                    torch.distributed.all_reduce(self.log_alpha.grad.data, op=torch.distributed.ReduceOp.SUM)  # ty: ignore[possibly-missing-attribute]
                     self.log_alpha.grad.data.copy_(self.log_alpha.grad.data / self.gpu_world_size)
 
             scaler.unscale_(alpha_optimizer)
@@ -490,12 +491,13 @@ class FastSACAgent(BaseAlgo):
         args = self.config
 
         with self._maybe_amp():
-            critic_observations = data["critic_observations"]
+            critic_observations = cast("torch.Tensor", data["critic_observations"])
+            actor_obs = cast("torch.Tensor", data["observations"])
 
-            actions, log_probs = actor.get_actions_and_log_probs(data["observations"])
+            actions, log_probs = actor.get_actions_and_log_probs(actor_obs)
             # For logging, this is a bit wasteful though, but could be useful
             with torch.no_grad():
-                _, _, log_std = actor(data["observations"])
+                _, _, log_std = actor(actor_obs)
                 action_std = log_std.exp().mean()
                 # Compute policy entropy (negative log probability)
                 policy_entropy = -log_probs.mean()
@@ -546,26 +548,29 @@ class FastSACAgent(BaseAlgo):
             samples_per_update *= 2
 
             augmented_large_data: Dict[str, torch.Tensor | Dict[str, torch.Tensor]] = {"next": {}}
+            large_next_data = cast("TensorDict", large_data["next"])
 
             augmented_large_data["observations"] = self.symmetry_utils.augment_observations(
-                obs=large_data["observations"],
+                obs=cast("torch.Tensor", large_data["observations"]),
                 env=self.env,
                 obs_list=self.config.actor_obs_keys,
             )
-            augmented_large_data["actions"] = self.symmetry_utils.augment_actions(actions=large_data["actions"])
+            augmented_large_data["actions"] = self.symmetry_utils.augment_actions(
+                actions=cast("torch.Tensor", large_data["actions"])
+            )
             assert isinstance(augmented_large_data["next"], dict)
             augmented_large_data["next"]["observations"] = self.symmetry_utils.augment_observations(
-                obs=large_data["next"]["observations"],
+                obs=cast("torch.Tensor", large_next_data["observations"]),
                 env=self.env,
                 obs_list=self.config.actor_obs_keys,
             )
             augmented_large_data["critic_observations"] = self.symmetry_utils.augment_observations(
-                obs=large_data["critic_observations"],
+                obs=cast("torch.Tensor", large_data["critic_observations"]),
                 env=self.env,
                 obs_list=self.config.critic_obs_keys,
             )
             augmented_large_data["next"]["critic_observations"] = self.symmetry_utils.augment_observations(
-                obs=large_data["next"]["critic_observations"],
+                obs=cast("torch.Tensor", large_next_data["critic_observations"]),
                 env=self.env,
                 obs_list=self.config.critic_obs_keys,
             )
@@ -575,20 +580,29 @@ class FastSACAgent(BaseAlgo):
             assert isinstance(observations_tensor, torch.Tensor), (
                 "observations should be a Tensor after data augmentation"
             )
-            num_aug = int(observations_tensor.shape[0] / large_data["next"]["rewards"].shape[0])
-            augmented_large_data["next"]["rewards"] = large_data["next"]["rewards"].repeat(num_aug)  # type: ignore[index]
-            augmented_large_data["next"]["dones"] = large_data["next"]["dones"].repeat(num_aug)  # type: ignore[index]
-            augmented_large_data["next"]["truncations"] = large_data["next"]["truncations"].repeat(num_aug)  # type: ignore[index]
-            augmented_large_data["next"]["effective_n_steps"] = large_data["next"]["effective_n_steps"].repeat(num_aug)  # type: ignore[index]
+            num_aug = int(observations_tensor.shape[0] / cast("torch.Tensor", large_next_data["rewards"]).shape[0])
+            augmented_large_data["next"]["rewards"] = cast("torch.Tensor", large_next_data["rewards"]).repeat(num_aug)
+            augmented_large_data["next"]["dones"] = cast("torch.Tensor", large_next_data["dones"]).repeat(num_aug)
+            augmented_large_data["next"]["truncations"] = cast("torch.Tensor", large_next_data["truncations"]).repeat(
+                num_aug
+            )
+            augmented_large_data["next"]["effective_n_steps"] = cast(
+                "torch.Tensor", large_next_data["effective_n_steps"]
+            ).repeat(num_aug)
 
             # Override large_data
             large_data = augmented_large_data
 
-        # Normalize all data once
-        large_data["observations"] = normalize_obs(large_data["observations"])
-        large_data["next"]["observations"] = normalize_obs(large_data["next"]["observations"])
-        large_data["critic_observations"] = normalize_critic_obs(large_data["critic_observations"])
-        large_data["next"]["critic_observations"] = normalize_critic_obs(large_data["next"]["critic_observations"])
+        # Normalize all data once - extract next for type safety
+        large_next_data = cast("TensorDict", large_data["next"])
+        large_data["observations"] = normalize_obs(cast("torch.Tensor", large_data["observations"]))
+        large_next_data["observations"] = normalize_obs(cast("torch.Tensor", large_next_data["observations"]))
+        large_data["critic_observations"] = normalize_critic_obs(
+            cast("torch.Tensor", large_data["critic_observations"])
+        )
+        large_next_data["critic_observations"] = normalize_critic_obs(
+            cast("torch.Tensor", large_next_data["critic_observations"])
+        )
 
         # Split into smaller batches
         prepared_batches = []
@@ -599,27 +613,32 @@ class FastSACAgent(BaseAlgo):
 
             # Create a slice of the large batch
             batch_data = TensorDict(
-                {
-                    "observations": large_data["observations"][start_idx:end_idx],
-                    "actions": large_data["actions"][start_idx:end_idx],
+                {  # ty: ignore[invalid-argument-type]
+                    "observations": cast("torch.Tensor", large_data["observations"])[start_idx:end_idx],
+                    "actions": cast("torch.Tensor", large_data["actions"])[start_idx:end_idx],
                     "next": {
-                        "rewards": large_data["next"]["rewards"][start_idx:end_idx],
-                        "dones": large_data["next"]["dones"][start_idx:end_idx],
-                        "truncations": large_data["next"]["truncations"][start_idx:end_idx],
-                        "observations": large_data["next"]["observations"][start_idx:end_idx],
-                        "effective_n_steps": large_data["next"]["effective_n_steps"][start_idx:end_idx],
+                        "rewards": cast("torch.Tensor", large_next_data["rewards"])[start_idx:end_idx],
+                        "dones": cast("torch.Tensor", large_next_data["dones"])[start_idx:end_idx],
+                        "truncations": cast("torch.Tensor", large_next_data["truncations"])[start_idx:end_idx],
+                        "observations": cast("torch.Tensor", large_next_data["observations"])[start_idx:end_idx],
+                        "effective_n_steps": cast("torch.Tensor", large_next_data["effective_n_steps"])[
+                            start_idx:end_idx
+                        ],
                     },
-                    "critic_observations": large_data["critic_observations"][start_idx:end_idx],
+                    "critic_observations": cast("torch.Tensor", large_data["critic_observations"])[start_idx:end_idx],
                 },
                 batch_size=samples_per_update,
             )
-            batch_data["next"]["critic_observations"] = large_data["next"]["critic_observations"][start_idx:end_idx]
+            batch_next = cast("TensorDict", batch_data["next"])
+            batch_next["critic_observations"] = cast("torch.Tensor", large_next_data["critic_observations"])[
+                start_idx:end_idx
+            ]
 
             prepared_batches.append(batch_data)
 
         return prepared_batches
 
-    def load(self, ckpt_path: str | None) -> None:
+    def load(self, ckpt_path: str | None) -> None:  # ty: ignore[invalid-method-override]
         if not ckpt_path:
             return
         # Load checkpoint if specified
@@ -702,7 +721,7 @@ class FastSACAgent(BaseAlgo):
                     next_critic_obs,
                 )
                 transition = TensorDict(
-                    {
+                    {  # ty: ignore[invalid-argument-type]
                         "observations": obs,
                         "actions": torch.as_tensor(actions, device=device, dtype=torch.float),
                         "next": {
@@ -716,7 +735,7 @@ class FastSACAgent(BaseAlgo):
                     device=device,
                 )
                 transition["critic_observations"] = critic_obs
-                transition["next"]["critic_observations"] = true_next_critic_obs
+                cast("TensorDict", transition["next"])["critic_observations"] = true_next_critic_obs
 
                 obs = next_obs
                 critic_obs = next_critic_obs

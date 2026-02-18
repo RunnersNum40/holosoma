@@ -52,7 +52,7 @@ class WholeBodyTrackingManager(BaseTask):
 
     def _refresh_envs_after_reset(self, env_ids):
         self.simulator.set_actor_root_state_tensor(env_ids, self.simulator.all_root_states)
-        self.simulator.set_dof_state_tensor(env_ids, self.simulator.dof_state)
+        self.simulator.set_dof_state_tensor(env_ids, self.simulator.dof_state)  # ty: ignore[unresolved-attribute]
         self.simulator.clear_contact_forces_history(env_ids)
         self.need_to_refresh_envs[env_ids] = False
         self.simulator.refresh_sim_tensors()
@@ -74,13 +74,13 @@ class WholeBodyTrackingManager(BaseTask):
         # -------------------------------- terms same with locomotion_manager.py [end]--------------------------------
         # Add tracking metrics to log_dict
         motion_command = self.command_manager.get_state("motion_command")
-        motion_command.update_metrics()
-        self.log_dict.update(motion_command.metrics)
+        motion_command.update_metrics()  # ty: ignore[unresolved-attribute]
+        self.log_dict.update(motion_command.metrics)  # ty: ignore[unresolved-attribute]
 
     def reset_all(self):
         # If reset_all is called several times, clear buffer in motion_command
         motion_command = self.command_manager.get_state("motion_command")
-        motion_command.init_buffers()
+        motion_command.init_buffers()  # ty: ignore[unresolved-attribute]
         return super().reset_all()
 
     def _reset_robot_states_callback(self, env_ids, target_states=None):

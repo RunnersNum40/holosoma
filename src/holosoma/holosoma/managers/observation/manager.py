@@ -208,7 +208,7 @@ class ObservationManager:
         torch.Tensor
             Scaled observation tensor.
         """
-        return obs * scale
+        return obs * scale  # ty: ignore[invalid-return-type]
 
     def _apply_history(
         self, group_name: str, term_name: str, obs: torch.Tensor, group_cfg: ObsGroupCfg, *, modify_buffer: bool = True
