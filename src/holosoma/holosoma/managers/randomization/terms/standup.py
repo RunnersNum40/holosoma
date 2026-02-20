@@ -20,9 +20,6 @@ def apply_vertical_pull(
     The actual force magnitude is ``max_force * env._vertical_pull_scale``,
     where ``_vertical_pull_scale`` is managed by ``VerticalPullCurriculum``.
 
-    Uses assignment (not ``+=``) because MuJoCo does not zero ``xfrc_applied``
-    between steps — additive writes would accumulate indefinitely.
-
     Args:
         max_force: Peak upward force in Newtons (default ~0.6 * 35kg * 9.81).
         enabled: Master toggle for this term.
@@ -34,12 +31,25 @@ def apply_vertical_pull(
         force = max_force * scale
 
     torso_idx = env.torso_index
-    applied = env.simulator.applied_forces
+    sim = env.simulator
 
-    if isinstance(applied, torch.Tensor):
-        applied[:, torso_idx, 2] = force
+    if hasattr(sim, "applied_forces"):
+        applied = sim.applied_forces
+        if isinstance(applied, torch.Tensor):
+            applied[:, torso_idx, 2] = force
+        else:
+            applied[torso_idx, 2] = force
     else:
-        applied[torso_idx, 2] = force
+        num_envs = sim.num_envs
+        body_id = sim.body_ids[torso_idx]
+        forces = torch.zeros(num_envs, 1, 3, device=sim.sim_device)
+        forces[:, 0, 2] = force
+        torques = torch.zeros_like(forces)
+        sim._robot.set_external_force_and_torque(
+            forces=forces,
+            torques=torques,
+            body_ids=torch.tensor([body_id], device=sim.sim_device),
+        )
 
 
 def clear_applied_forces(
@@ -58,9 +68,23 @@ def clear_applied_forces(
         env: The simulation environment.
         env_ids: Indices of environments being reset.
     """
-    applied = env.simulator.applied_forces
+    sim = env.simulator
 
-    if isinstance(applied, torch.Tensor):
-        applied[env_ids, :, :] = 0.0
+    if hasattr(sim, "applied_forces"):
+        # MuJoCo path: direct array write
+        applied = sim.applied_forces
+        if isinstance(applied, torch.Tensor):
+            applied[env_ids, :, :] = 0.0
+        else:
+            applied[:, :] = 0.0
     else:
-        applied[:, :] = 0.0
+        # IsaacSim path: zero out external forces for reset envs
+        num_bodies = len(sim.body_ids)
+        forces = torch.zeros(len(env_ids), num_bodies, 3, device=sim.sim_device)
+        torques = torch.zeros_like(forces)
+        sim._robot.set_external_force_and_torque(
+            forces=forces,
+            torques=torques,
+            env_ids=env_ids,
+            body_ids=torch.tensor(sim.body_ids, device=sim.sim_device),
+        )
